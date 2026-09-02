@@ -1,0 +1,25 @@
+{
+  "short_name": "Elim SDM",
+  "name": "ELIM SDM - Sistema de Células",
+  "description": "Sistema de gestión de células y reportes de la iglesia Elim Santiago de María",
+  "icons": [
+    {
+      "src": "img/icono-192.png",
+      "type": "image/png",
+      "sizes": "192x192",
+      "purpose": "any"
+    },
+    {
+      "src": "img/icono-512.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "any"
+    }
+  ],
+  "start_url": "index.php",
+  "background_color": "#010326",
+  "theme_color": "#010326",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "scope": "./"
+}
