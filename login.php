@@ -51,6 +51,13 @@ unset($_SESSION["error"]);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - Elim SDM</title>
+    <meta name="theme-color" content="#010326">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="ELIM SDM">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="img/icono-192.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -124,6 +131,7 @@ unset($_SESSION["error"]);
     </section>
 </div>
 
+<script>window.APP_BASE_URL = <?= json_encode(rtrim(dirname($_SERVER['SCRIPT_NAME'] ?? ''), '/')) ?>;</script>
 <script src="js/main.js?v=<?= filemtime(__DIR__ . '/js/main.js') ?>"></script>
 
 </body>

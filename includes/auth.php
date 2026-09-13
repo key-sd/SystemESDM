@@ -3,10 +3,31 @@ if (session_status() !== PHP_SESSION_ACTIVE) {
     session_start();
 }
 
+/** Construye rutas válidas en XAMPP y al publicar en la raíz de un dominio. */
+function urlApp(string $ruta = ''): string
+{
+    static $base = null;
+
+    if ($base === null) {
+        $script = str_replace('\\', '/', $_SERVER['SCRIPT_NAME'] ?? '');
+        $base = dirname($script);
+
+        foreach (['/admin', '/lider', '/supervisor'] as $seccion) {
+            if (str_ends_with($base, $seccion)) {
+                $base = substr($base, 0, -strlen($seccion));
+                break;
+            }
+        }
+        $base = rtrim($base, '/');
+    }
+
+    return ($base === '' ? '' : $base) . '/' . ltrim($ruta, '/');
+}
+
 function requiereLogin(): void
 {
     if (empty($_SESSION["usuario_id"])) {
-        header("Location: /SystemESDM/login.php");
+        header("Location: " . urlApp("login.php"));
         exit();
     }
 }

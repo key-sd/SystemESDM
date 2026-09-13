@@ -68,8 +68,8 @@ $menus = [
 ];
 ?>
 <aside class="sidebar" id="sidebar">
-    <a class="brand" href="/SystemESDM/index.php">
-        <img src="/SystemESDM/img/logoClaro.png" alt="ELIM SDM"/>
+    <a class="brand" href="<?= e(urlApp('index.php')) ?>">
+        <img src="<?= e(urlApp('img/logoClaro.png')) ?>" alt="ELIM SDM"/>
     </a>
 
     <nav class="side-nav">
@@ -91,7 +91,7 @@ $menus = [
             <strong><?= e($_SESSION["nombre"]) ?></strong>
             <span><?= e(ucfirst($rol)) ?></span>
         </div>
-        <a class="logout" href="/SystemESDM/logout.php" title="Cerrar sesión">
+        <a class="logout" href="<?= e(urlApp('logout.php')) ?>" title="Cerrar sesión">
             <i class="ri-logout-box-r-line"></i>
         </a>
     </div>

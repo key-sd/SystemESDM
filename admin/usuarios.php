@@ -180,7 +180,7 @@ abrirPaginaAdmin(
     <section class="card card-flush">
         <h3><?= $usuarioEditado ? "Editar usuario" : "Nuevo usuario" ?></h3>
 
-        <form method="post">
+        <form method="post" autocomplete="off">
             <input type="hidden" name="csrf" value="<?= csrfToken() ?>">
             <input type="hidden" name="accion" value="guardar">
             <input type="hidden" name="id" value="<?= e(
@@ -206,6 +206,7 @@ abrirPaginaAdmin(
                         id="usuario"
                         name="usuario"
                         required
+                        autocomplete="off"
                         value="<?= e($usuarioEditado["usuario"] ?? "") ?>"
                     >
                 </div>
@@ -220,6 +221,7 @@ abrirPaginaAdmin(
                         id="password"
                         name="password"
                         type="password"
+                        autocomplete="new-password"
                         <?= $usuarioEditado ? "" : "required" ?>
                     >
                 </div>

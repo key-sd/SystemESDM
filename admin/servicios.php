@@ -106,7 +106,6 @@ abrirPaginaAdmin("servicios", "Servicios y finanzas");
 <div class="section-split">
     <section class="card card-flush">
         <h3><?= $servicioEditado ? "Editar servicio" : "Registrar servicio" ?></h3>
-        <p class="muted">Solo se aceptan servicios de martes, jueves y domingo. Si guardas una fecha existente, se actualizará su registro.</p>
         <form method="post">
             <input type="hidden" name="csrf" value="<?= csrfToken() ?>">
             <div class="form-grid form-spaced">
@@ -123,7 +122,7 @@ abrirPaginaAdmin("servicios", "Servicios y finanzas");
     </section>
 
     <section class="card card-flush">
-        <div class="card-head"><div><h3>Historial de servicios</h3><p class="muted">Registros del mes seleccionado.</p></div><form method="get"><label class="sr-only" for="mes">Mes</label><input id="mes" type="month" name="mes" value="<?= e($mes) ?>" onchange="this.form.submit()"></form></div>
+        <div class="card-head"><div><h3>Historial de servicios</h3></div><form method="get"><label class="sr-only" for="mes">Mes</label><input id="mes" type="month" name="mes" value="<?= e($mes) ?>" onchange="this.form.submit()"></form></div>
         <div class="table-wrap"><table><thead><tr><th>Fecha</th><th>Servicio</th><th>Asistencia</th><th>Ofrenda</th><th>Diezmos</th><th></th></tr></thead><tbody>
         <?php foreach ($servicios as $servicio): ?><tr><td data-label="Fecha"><strong><?= date("d/m/Y", strtotime($servicio["fecha"])) ?></strong></td><td data-label="Servicio"><?= e(ucfirst($servicio["tipo_servicio"])) ?></td><td data-label="Asistencia"><?= $servicio["asistencia_total"] ?> <span class="muted">(<?= $servicio["asistencia_adultos"] ?> ad. / <?= $servicio["asistencia_ninos"] ?> ni.)</span></td><td data-label="Ofrenda">$<?= number_format($servicio["ofrenda"], 2) ?></td><td data-label="Diezmos">$<?= number_format($servicio["diezmos"], 2) ?></td><td data-label="Acción"><a class="btn btn-soft btn-sm" href="servicios.php?mes=<?= e($mes) ?>&editar=<?= $servicio["id"] ?>">Editar</a></td></tr><?php endforeach; ?>
         <?php if (!$servicios): ?><tr><td colspan="6" class="empty">No hay servicios registrados en este mes.</td></tr><?php endif; ?>

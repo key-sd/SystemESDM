@@ -1,5 +1,8 @@
 <?php
-session_start();
+require_once __DIR__ . "/includes/auth.php";
+if (session_status() !== PHP_SESSION_ACTIVE) {
+    session_start();
+}
 $_SESSION = [];
 if (ini_get("session.use_cookies")) {
     $p = session_get_cookie_params();
@@ -14,5 +17,5 @@ if (ini_get("session.use_cookies")) {
     );
 }
 session_destroy();
-header("Location: /SystemESDM/login.php");
+header("Location: " . urlApp("login.php"));
 exit();

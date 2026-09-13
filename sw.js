@@ -1,4 +1,4 @@
-const CACHE_NAME = 'elim-sdm-v1';
+const CACHE_NAME = 'elim-sdm-v2';
 const STATIC_ASSETS = [
   'css/app.css',
   'css/login.css',

@@ -3,7 +3,40 @@ document.addEventListener('DOMContentLoaded', () => {
     configurarSidebarMovil();
     configurarTablasResponsivas();
     configurarFormulariosAutomaticos();
+    configurarInstalacionApp();
 });
+
+function configurarInstalacionApp() {
+    if (!('serviceWorker' in navigator)) return;
+
+    const base = window.APP_BASE_URL || '';
+    navigator.serviceWorker.register(`${base}/sw.js`).catch(() => {});
+
+    let eventoInstalacion;
+    window.addEventListener('beforeinstallprompt', (evento) => {
+        evento.preventDefault();
+        eventoInstalacion = evento;
+        if (document.getElementById('instalarApp')) return;
+
+        const aviso = document.createElement('button');
+        aviso.id = 'instalarApp';
+        aviso.className = 'install-app';
+        aviso.type = 'button';
+        aviso.innerHTML = '<i class="ri-download-cloud-2-line"></i> Instalar ELIM SDM';
+        aviso.addEventListener('click', async () => {
+            eventoInstalacion?.prompt();
+            await eventoInstalacion?.userChoice;
+            aviso.remove();
+            eventoInstalacion = null;
+        });
+        document.body.append(aviso);
+    });
+
+    window.addEventListener('appinstalled', () => {
+        document.getElementById('instalarApp')?.remove();
+        eventoInstalacion = null;
+    });
+}
 
 function configurarVisibilidadPassword() {
     const boton = document.getElementById('togglePass');

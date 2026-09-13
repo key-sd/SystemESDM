@@ -7,16 +7,17 @@
       "src": "img/icono-192.png",
       "type": "image/png",
       "sizes": "192x192",
-      "purpose": "any"
+      "purpose": "any maskable"
     },
     {
       "src": "img/icono-512.png",
       "type": "image/png",
       "sizes": "512x512",
-      "purpose": "any"
+      "purpose": "any maskable"
     }
   ],
-  "start_url": "index.php",
+  "id": "./",
+  "start_url": "./index.php",
   "background_color": "#010326",
   "theme_color": "#010326",
   "display": "standalone",
