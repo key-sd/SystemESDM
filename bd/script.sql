@@ -203,7 +203,10 @@ CREATE TABLE metas_asignaciones_sector (
         REFERENCES sectores(id) ON UPDATE CASCADE ON DELETE RESTRICT
 ) ENGINE=InnoDB;
 
--- Crea el primer administrador después de instalar. Genera su hash con:
--- php -r "echo password_hash('tu-clave-segura', PASSWORD_DEFAULT), PHP_EOL;"
--- INSERT INTO usuarios (nombre_completo, usuario, password, rol)
--- VALUES ('Administrador', 'admin', 'PEGA_AQUI_EL_HASH', 'admin');
+-- Cuentas temporales para probar cada rol en una instalación limpia.
+-- Contraseña para las tres: Prueba2026!
+-- Cámbialas o elimínalas antes de poner el sistema en producción.
+INSERT INTO usuarios (nombre_completo, usuario, password, rol) VALUES
+    ('Administrador de prueba', 'admin', '$2y$10$VZtHXRRBHJaBbKXcJxKaX.Oi0VunaYnnhwz.QR.xelkTrYXBkAY5i', 'admin'),
+    ('Supervisor de prueba', 'supervisor', '$2y$10$VZtHXRRBHJaBbKXcJxKaX.Oi0VunaYnnhwz.QR.xelkTrYXBkAY5i', 'supervisor'),
+    ('Líder de prueba', 'lider', '$2y$10$VZtHXRRBHJaBbKXcJxKaX.Oi0VunaYnnhwz.QR.xelkTrYXBkAY5i', 'lider');
