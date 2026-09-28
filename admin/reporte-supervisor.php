@@ -103,8 +103,8 @@ abrirPaginaAdmin("reportes", "Detalle del reporte del supervisor");
                     <th>Célula / líder</th>
                     <th>Adultos amigos</th><th>Adultos hermanos</th>
                     <th>Jóvenes amigos</th><th>Jóvenes hermanos</th><th>Niños</th>
-                    <th>Total personas</th><th>Conversiones</th><th>Visitas</th><th>Bautismos</th>
-                    <th>Iglesia</th><th>Misiones</th><th>Bus</th>
+                    <th>Total personas</th><th>Conversiones</th><th>Visitas</th><th title="Bautismos en agua">Bautismos</th>
+                    <th>Iglesia</th><th>Misiones</th><th>Transporte</th>
                 </tr>
             </thead>
             <tbody>

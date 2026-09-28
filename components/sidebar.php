@@ -9,22 +9,22 @@ $menus = [
         "celulas" => ["ri-map-pin-2-line", "Células", "celulas.php"],
         "usuarios" => ["ri-team-line", "Usuarios", "usuarios.php"],
         "reportes" => ["ri-file-chart-line", "Reportes", "reportes.php"],
+        "servicios" => [
+            "ri-calendar-check-line",
+            "Servicios",
+            "servicios.php",
+        ],
         "estadisticas" => [
             "ri-bar-chart-box-line",
             "Estadísticas",
             "estadisticas.php",
         ],
-        "servicios" => [
-            "ri-calendar-check-line",
-            "Servicios y finanzas",
-            "servicios.php",
-        ],
+        "metas" => ["ri-focus-3-line", "Metas trimestrales", "metas.php"],
         "exportar" => [
-            "ri-file-excel-2-line",
-            "Exportar a Excel",
+            "ri-file-chart-line",
+            "Descarga de reportes",
             "exportar-reportes.php",
         ],
-        "metas" => ["ri-focus-3-line", "Metas trimestrales", "metas.php"],
     ],
     "supervisor" => [
         "resumen" => [
@@ -53,6 +53,11 @@ $menus = [
             "ri-layout-grid-line",
             "Resumen",
             "lider-inicio.php?vista=resumen",
+        ],
+        "miembros" => [
+            "ri-team-line",
+            "Miembros",
+            "lider-inicio.php?vista=miembros",
         ],
         "reporte" => [
             "ri-file-edit-line",

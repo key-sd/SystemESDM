@@ -195,14 +195,65 @@ $consulta = $conexion->prepare(
     'SELECT
         c.*,
         u.nombre_completo AS lider,
-        u.id AS lider_id
+        u.usuario AS lider_usuario,
+        u.id AS lider_id,
+        r.id AS reporte_semana_id,
+        r.fecha_reporte AS reporte_semana_fecha,
+        r.total_asistencia AS reporte_semana_asistencia,
+        r.adultos_amigos AS reporte_semana_aa,
+        r.adultos_hermanos AS reporte_semana_ah,
+        r.jovenes_amigos AS reporte_semana_ja,
+        r.jovenes_hermanos AS reporte_semana_jh,
+        r.ninos AS reporte_semana_ninos,
+        r.ofrenda_total AS reporte_semana_ofrenda,
+        r.ofrenda_iglesia AS reporte_semana_oi,
+        r.ofrenda_misiones AS reporte_semana_om,
+        r.ofrenda_bus AS reporte_semana_ob,
+        r.conversion AS reporte_semana_conversion,
+        r.visita_programada AS reporte_semana_visita,
+        r.bautismo_agua AS reporte_semana_bautismo,
+        r.enviado_en AS reporte_semana_enviado,
+        (SELECT COUNT(*) FROM miembros_celula m WHERE m.celula_id = c.id AND m.activo = 1) AS total_miembros
      FROM celulas c
      LEFT JOIN usuarios u ON u.id = c.lider_id
+     LEFT JOIN reportes_lider r ON r.celula_id = c.id AND r.anio_semana = YEARWEEK(CURDATE(), 1)
      WHERE c.sector_id = ? AND c.activo = 1
      ORDER BY c.nombre'
 );
 $consulta->execute([$sectorId]);
 $celulas = $consulta->fetchAll();
+
+$miembrosPorCelula = [];
+$historialPorCelula = [];
+
+if ($vista === 'celulas') {
+    $stmtM = $conexion->prepare(
+        'SELECT m.* 
+         FROM miembros_celula m
+         INNER JOIN celulas c ON c.id = m.celula_id
+         WHERE c.sector_id = ? AND m.activo = 1
+         ORDER BY m.nombre_completo ASC'
+    );
+    $stmtM->execute([$sectorId]);
+    foreach ($stmtM->fetchAll() as $m) {
+        $miembrosPorCelula[(int) $m['celula_id']][] = $m;
+    }
+
+    $stmtH = $conexion->prepare(
+        'SELECT r.id, r.celula_id, r.fecha_reporte, r.total_asistencia, r.ofrenda_total, r.conversion, r.enviado_en
+         FROM reportes_lider r
+         INNER JOIN celulas c ON c.id = r.celula_id
+         WHERE c.sector_id = ?
+         ORDER BY r.fecha_reporte DESC'
+    );
+    $stmtH->execute([$sectorId]);
+    foreach ($stmtH->fetchAll() as $h) {
+        $cId = (int) $h['celula_id'];
+        if (!isset($historialPorCelula[$cId]) || count($historialPorCelula[$cId]) < 5) {
+            $historialPorCelula[$cId][] = $h;
+        }
+    }
+}
 
 $reportesLiderSemana = [];
 
@@ -212,7 +263,7 @@ if ($vista === 'reporte') {
          FROM reportes_lider r
          INNER JOIN celulas c ON c.id = r.celula_id
          WHERE c.sector_id = ?
-           AND r.fecha_reporte = ?
+           AND r.anio_semana = YEARWEEK(?, 1)
          ORDER BY r.celula_id, r.fecha_reporte DESC, r.enviado_en DESC'
     );
     $consulta->execute([
@@ -260,7 +311,8 @@ $titulos = [
 ];
 
 $titulo = $titulos[$vista];
-$subtitulo = 'Supervisión y seguimiento semanal';
+
+$styles = ['css/sup.css'];
 
 require __DIR__ . '/../components/head.php';
 require __DIR__ . '/../components/sidebar.php';
@@ -269,10 +321,10 @@ require __DIR__ . '/../components/top.php';
 
 <?php if ($vista === 'resumen'): ?>
     <?php
-    $inicioSemana = semanaActual();
+    $semanaActualIso = (int) date('oW');
     $reportesSemana = array_filter(
         $reportes,
-        fn (array $reporte): bool => $reporte['fecha_reporte'] >= $inicioSemana
+        fn (array $reporte): bool => ((int) ($reporte['anio_semana'] ?? date('oW', strtotime($reporte['fecha_reporte'])))) === $semanaActualIso
     );
     $asistenciaSemana = array_sum(array_map(
         fn (array $reporte): int => (int) $reporte['total_asistencia'],
@@ -302,9 +354,6 @@ require __DIR__ . '/../components/top.php';
         <div class="card-head">
             <div>
                 <h3>Reportes recientes</h3>
-                <p class="muted">
-                    Abrir un reporte registra automáticamente la hora de lectura.
-                </p>
             </div>
         </div>
 
@@ -349,31 +398,242 @@ require __DIR__ . '/../components/top.php';
     </section>
 
 <?php elseif ($vista === 'celulas'): ?>
-    <div class="grid-3">
+    <?php if (!$celulas): ?>
+        <div class="empty">No hay células registradas en este sector.</div>
+    <?php else: ?>
+        <div class="grid-3">
+            <?php foreach ($celulas as $celula): ?>
+                <?php $tieneReporteSemana = !empty($celula['reporte_semana_id']); ?>
+                <article class="card card-flush cell-card" data-open-cell-modal="<?= $celula['id'] ?>">
+                    <div class="cell-card-header">
+                        <span class="badge-celula badge-celula-<?= e($celula['tipo']) ?>">
+                            Célula <?= e(etiquetaTipoCelula($celula['tipo'])) ?>
+                        </span>
+                        <?php if ($tieneReporteSemana): ?>
+                            <span class="badge-status-report ok">
+                                <i class="ri-checkbox-circle-fill"></i> Reporte entregado
+                            </span>
+                        <?php else: ?>
+                            <span class="badge-status-report wait">
+                                <i class="ri-time-line"></i> Reporte pendiente
+                            </span>
+                        <?php endif; ?>
+                    </div>
+
+                    <h3 class="cell-card-title"><?= e($celula['nombre']) ?></h3>
+
+                    <div class="cell-card-meta">
+                        <p class="muted">
+                            <i class="ri-user-3-line"></i>
+                            <?= e($celula['lider'] ?? 'Sin líder asignado') ?>
+                        </p>
+                        <p class="muted">
+                            <i class="ri-map-pin-line"></i>
+                            <?= e($celula['direccion'] ?? 'Sin dirección') ?>
+                        </p>
+                    </div>
+
+                    <div class="cell-card-footer">
+                        <span class="cell-members-count">
+                            <i class="ri-team-line"></i> <?= (int) $celula['total_miembros'] ?> miembro<?= (int) $celula['total_miembros'] === 1 ? '' : 's' ?>
+                        </span>
+                        <button type="button" class="btn btn-soft btn-sm btn-open-cell-modal" data-open-cell-modal="<?= $celula['id'] ?>">
+                            <i class="ri-eye-line"></i> Ver detalles
+                        </button>
+                    </div>
+                </article>
+            <?php endforeach; ?>
+        </div>
+
+        <!-- Modal Backdrop y Contenedor -->
+        <div id="modalCelulaDetalle" class="cell-modal-backdrop" style="display: none;" aria-hidden="true" role="dialog" aria-modal="true">
+            <div class="cell-modal-container" id="modalCelulaContenido">
+                <!-- Se llena dinámicamente desde el template -->
+            </div>
+        </div>
+
+        <!-- Templates con toda la información detallada de cada célula -->
         <?php foreach ($celulas as $celula): ?>
-            <article class="card card-flush">
-                <span class="badge ok"><?= e(ucfirst($celula['tipo'])) ?></span>
-                <h3 class="card-title-spaced"><?= e($celula['nombre']) ?></h3>
-                <p class="muted">
-                    <i class="ri-user-line"></i>
-                    <?= e($celula['lider'] ?? 'Sin líder') ?>
-                </p>
-                <p class="muted">
-                    <i class="ri-map-pin-line"></i>
-                    <?= e($celula['direccion'] ?? 'Sin ubicación') ?>
-                </p>
-            </article>
+            <?php
+            $tieneReporteSemana = !empty($celula['reporte_semana_id']);
+            $miembros = $miembrosPorCelula[(int) $celula['id']] ?? [];
+            $historial = $historialPorCelula[(int) $celula['id']] ?? [];
+            ?>
+            <template id="tmpl-celula-<?= $celula['id'] ?>">
+                <div class="cell-modal-header">
+                    <div>
+                        <div class="cell-modal-tags">
+                            <span class="badge-celula badge-celula-<?= e($celula['tipo']) ?>">
+                                Célula <?= e(etiquetaTipoCelula($celula['tipo'])) ?>
+                            </span>
+                            <?php if ($tieneReporteSemana): ?>
+                                <span class="badge-status-report ok">
+                                    <i class="ri-checkbox-circle-fill"></i> Reporte de la semana: Entregado
+                                </span>
+                            <?php else: ?>
+                                <span class="badge-status-report wait">
+                                    <i class="ri-time-line"></i> Reporte de la semana: Pendiente
+                                </span>
+                            <?php endif; ?>
+                        </div>
+                        <h2><?= e($celula['nombre']) ?></h2>
+                    </div>
+                    <button type="button" class="cell-modal-close" aria-label="Cerrar">&times;</button>
+                </div>
+
+                <div class="cell-modal-body">
+                    <!-- 1. Ficha del líder y ubicación -->
+                    <div class="cell-modal-info-grid">
+                        <div class="info-block">
+                            <span class="info-label"><i class="ri-user-star-line"></i> Líder encargado</span>
+                            <span class="info-value"><?= e($celula['lider'] ?? 'Sin líder asignado') ?></span>
+                            <?php if (!empty($celula['lider_usuario'])): ?>
+                                <span class="info-sub">Usuario: @<?= e($celula['lider_usuario']) ?></span>
+                            <?php endif; ?>
+                        </div>
+                        <div class="info-block">
+                            <span class="info-label"><i class="ri-map-pin-2-line"></i> Ubicación</span>
+                            <span class="info-value"><?= e($celula['direccion'] ?? 'Sin dirección registrada') ?></span>
+                            <?php if (!empty($celula['lat']) && !empty($celula['lng'])): ?>
+                                <a href="https://maps.google.com/?q=<?= $celula['lat'] ?>,<?= $celula['lng'] ?>" target="_blank" rel="noopener" class="map-link">
+                                    <i class="ri-external-link-line"></i> Ver en Google Maps
+                                </a>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+
+                    <!-- 2. Estado del reporte de la semana actual -->
+                    <div class="cell-modal-report-box <?= $tieneReporteSemana ? 'box-delivered' : 'box-pending' ?>">
+                        <?php if ($tieneReporteSemana): ?>
+                            <div class="report-box-head">
+                                <div>
+                                    <h4><i class="ri-checkbox-circle-line"></i> Reporte entregado</h4>
+                                    <p class="muted">Reunión realizada el <strong><?= date('d/m/Y', strtotime($celula['reporte_semana_fecha'])) ?></strong></p>
+                                </div>
+                                <a href="reporte-lider.php?id=<?= $celula['reporte_semana_id'] ?>" class="btn btn-soft btn-sm">
+                                    <i class="ri-file-list-3-line"></i> Ver reporte completo
+                                </a>
+                            </div>
+                            <div class="report-box-metrics">
+                                <div class="metric-item">
+                                    <span class="metric-num"><?= $celula['reporte_semana_asistencia'] ?></span>
+                                    <span class="metric-lbl">Asistencia total</span>
+                                </div>
+                                <div class="metric-item">
+                                    <span class="metric-num">$<?= number_format($celula['reporte_semana_ofrenda'], 2) ?></span>
+                                    <span class="metric-lbl">Ofrenda total</span>
+                                </div>
+                                <div class="metric-item">
+                                    <span class="metric-num"><?= $celula['reporte_semana_conversion'] ?></span>
+                                    <span class="metric-lbl">Conversiones</span>
+                                </div>
+                                <div class="metric-item">
+                                    <span class="metric-num"><?= $celula['reporte_semana_visita'] ?></span>
+                                    <span class="metric-lbl">Visitas</span>
+                                </div>
+                            </div>
+                        <?php else: ?>
+                            <div class="report-pending-content">
+                                <i class="ri-time-line report-pending-icon"></i>
+                                <div>
+                                    <h4>Reporte de esta semana pendiente</h4>
+                                </div>
+                            </div>
+                        <?php endif; ?>
+                    </div>
+
+                    <!-- 3. Miembros registrados -->
+                    <div class="cell-modal-section">
+                        <div class="section-heading">
+                            <h3>Miembros registrados en la célula</h3>
+                            <span class="badge-count"><?= count($miembros) ?></span>
+                        </div>
+                        <?php if (!empty($miembros)): ?>
+                            <div class="cell-members-table-wrap">
+                                <table class="cell-members-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Nombre completo</th>
+                                            <th>Estado civil</th>
+                                            <th>Bautismo agua</th>
+                                            <th>Bautismo espíritu</th>
+                                            <th>Teléfono</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <?php foreach ($miembros as $m): ?>
+                                            <tr>
+                                                <td><strong><?= e($m['nombre_completo']) ?></strong></td>
+                                                <td><?= ucfirst(e($m['estado_civil'] ?? 'soltero')) ?></td>
+                                                <td>
+                                                    <span class="badge-pill <?= $m['bautismo_agua'] ? 'ok' : 'subtle' ?>">
+                                                        <?= $m['bautismo_agua'] ? 'Sí' : 'No' ?>
+                                                    </span>
+                                                </td>
+                                                <td>
+                                                    <span class="badge-pill <?= $m['bautismo_espiritu'] ? 'ok' : 'subtle' ?>">
+                                                        <?= $m['bautismo_espiritu'] ? 'Sí' : 'No' ?>
+                                                    </span>
+                                                </td>
+                                                <td><?= e($m['telefono'] ?: '—') ?></td>
+                                            </tr>
+                                        <?php endforeach; ?>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <?php else: ?>
+                            <div class="empty-compact">
+                                <i class="ri-team-line"></i> Esta célula aún no tiene miembros registrados por su líder.
+                            </div>
+                        <?php endif; ?>
+                    </div>
+
+                    <!-- 4. Historial reciente -->
+                    <?php if (!empty($historial)): ?>
+                        <div class="cell-modal-section">
+                            <div class="section-heading">
+                                <h3>Últimos reportes entregados</h3>
+                            </div>
+                            <div class="table-wrap">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>Fecha reunión</th>
+                                            <th>Asistencia</th>
+                                            <th>Ofrenda</th>
+                                            <th>Conversiones</th>
+                                            <th></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <?php foreach ($historial as $rep): ?>
+                                            <tr>
+                                                <td><strong><?= date('d/m/Y', strtotime($rep['fecha_reporte'])) ?></strong></td>
+                                                <td><?= $rep['total_asistencia'] ?> personas</td>
+                                                <td>$<?= number_format($rep['ofrenda_total'], 2) ?></td>
+                                                <td><?= $rep['conversion'] ?></td>
+                                                <td>
+                                                    <a href="reporte-lider.php?id=<?= $rep['id'] ?>" class="btn btn-soft btn-sm">
+                                                        <i class="ri-eye-line"></i> Ver
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                        <?php endforeach; ?>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    <?php endif; ?>
+                </div>
+            </template>
         <?php endforeach; ?>
-    </div>
+    <?php endif; ?>
 
 <?php elseif ($vista === 'reporte'): ?>
     <section class="card card-flush">
         <div class="card-head">
             <div>
                 <h3><?= $consolidadoEditado ? 'Editar reporte del sector' : 'Reporte del sector' ?></h3>
-                <p class="muted">
-                    Los reportes de líderes de esta semana se cargan automáticamente. Puedes completar o ajustar los datos antes de enviar.
-                </p>
             </div>
         </div>
 
@@ -391,9 +651,6 @@ require __DIR__ . '/../components/top.php';
                 <?= $consolidadoEditado ? 'readonly' : 'data-consolidated-date' ?>
                 required
             >
-            <p class="muted form-help">
-                Se incluyen los reportes cuya semana termina el sábado <?= date('d/m/Y', strtotime($fechaSeleccionada)) ?>.
-            </p>
 
             <div class="table-wrap table-spaced">
                 <?php
@@ -439,10 +696,10 @@ require __DIR__ . '/../components/top.php';
                             <th>Total personas</th>
                             <th>Conversiones</th>
                             <th>Visitas</th>
-                            <th>Bautismos</th>
+                            <th title="Bautismo en agua">Cand. Bautismo</th>
                             <th>Ofr. iglesia</th>
                             <th>Misiones</th>
-                            <th>Bus</th>
+                            <th>Transporte</th>
                         </tr>
                     </thead>
                     <tbody>

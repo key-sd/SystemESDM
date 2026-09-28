@@ -22,21 +22,62 @@ function leerJsonDataset(elemento, propiedad, valorPredeterminado = []) {
 
 function iniciarFiltrosEstadisticas() {
     const formulario = document.getElementById('formFiltrosEstadisticas');
-    const periodo = formulario?.querySelector('[data-stats-period]');
-    const rangoPersonalizado = formulario?.querySelector('[data-custom-range]');
-
-    if (!formulario || !periodo || !rangoPersonalizado) {
+    if (!formulario) {
         return;
     }
 
-    periodo.addEventListener('change', () => {
-        const esPersonalizado = periodo.value === 'personalizado';
-        rangoPersonalizado.classList.toggle('visible', esPersonalizado);
+    const modulo = formulario.querySelector('[data-stats-module]');
+    const periodo = formulario.querySelector('[data-stats-period]');
+    const rangoPersonalizado = formulario.querySelector('[data-custom-range]');
+    const cajaSector = formulario.querySelector('[data-stats-sector-box]');
+    const cajaServicio = formulario.querySelector('[data-stats-service-box]');
 
-        if (!esPersonalizado) {
-            formulario.submit();
+    function actualizarVisibilidad() {
+        if (modulo) {
+            const val = modulo.value;
+            if (cajaSector) {
+                cajaSector.style.display = (val === 'servicios') ? 'none' : '';
+            }
+            if (cajaServicio) {
+                cajaServicio.style.display = (val === 'celulas') ? 'none' : '';
+            }
         }
-    });
+        if (periodo && rangoPersonalizado) {
+            rangoPersonalizado.classList.toggle('visible', periodo.value === 'personalizado');
+        }
+    }
+
+    if (modulo) {
+        modulo.addEventListener('change', () => {
+            actualizarVisibilidad();
+            formulario.submit();
+        });
+    }
+
+    if (periodo) {
+        periodo.addEventListener('change', () => {
+            actualizarVisibilidad();
+            if (periodo.value !== 'personalizado') {
+                formulario.submit();
+            }
+        });
+    }
+
+    const sectorSelect = formulario.querySelector('[data-stats-sector]');
+    if (sectorSelect) {
+        sectorSelect.addEventListener('change', () => {
+            formulario.submit();
+        });
+    }
+
+    const servicioSelect = formulario.querySelector('[data-stats-service]');
+    if (servicioSelect) {
+        servicioSelect.addEventListener('change', () => {
+            formulario.submit();
+        });
+    }
+
+    actualizarVisibilidad();
 }
 
 function iniciarFiltroPeriodoReportes() {
@@ -78,9 +119,46 @@ function iniciarGraficaResumen() {
 }
 
 function iniciarGraficaEstadisticas() {
-    const canvas = document.getElementById('chartStats');
+    if (typeof Chart === 'undefined') {
+        return;
+    }
 
-    if (!canvas || typeof Chart === 'undefined') {
+    const canvases = document.querySelectorAll('[data-chart-stats]');
+    if (canvases.length > 0) {
+        canvases.forEach(canvas => {
+            const tipo = canvas.dataset.chartType || 'bar';
+            const label = canvas.dataset.chartLabel || 'Asistencia';
+            const color = canvas.dataset.chartColor || '#3061f2';
+            new Chart(canvas, {
+                type: tipo,
+                data: {
+                    labels: leerJsonDataset(canvas, 'labels'),
+                    datasets: [{
+                        label: label,
+                        data: leerJsonDataset(canvas, 'values'),
+                        backgroundColor: tipo === 'line' ? 'rgba(48, 97, 242, 0.12)' : color,
+                        borderColor: color,
+                        borderWidth: tipo === 'line' ? 2.5 : 1,
+                        borderRadius: tipo === 'bar' ? 8 : 0,
+                        tension: 0.35,
+                        fill: tipo === 'line'
+                    }]
+                },
+                options: {
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: { beginAtZero: true }
+                    }
+                }
+            });
+        });
+        return;
+    }
+
+    const canvas = document.getElementById('chartStats');
+    if (!canvas) {
         return;
     }
 

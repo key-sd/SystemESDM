@@ -14,13 +14,22 @@ $totalCelulas = (int) $conexion
     ->query("SELECT COUNT(*) FROM celulas WHERE activo = 1")
     ->fetchColumn();
 
-$consultaAsistencia = $conexion->prepare(
-    'SELECT COALESCE(SUM(total_asistencia), 0)
+$consultaAsistencia = $conexion->query(
+    'SELECT 
+        COALESCE(SUM(adultos_amigos + adultos_hermanos + jovenes_amigos + jovenes_hermanos), 0) AS asistencia_adultos,
+        COALESCE(SUM(ninos), 0) AS asistencia_ninos,
+        COALESCE(SUM(total_asistencia), 0) AS asistencia_total
      FROM reportes_lider
-     WHERE fecha_reporte >= ?',
+     WHERE anio_semana = YEARWEEK(CURDATE(), 1)',
 );
-$consultaAsistencia->execute([semanaActual()]);
-$asistenciaSemana = (int) $consultaAsistencia->fetchColumn();
+$datosAsistencia = $consultaAsistencia->fetch(PDO::FETCH_ASSOC) ?: [
+    'asistencia_adultos' => 0,
+    'asistencia_ninos' => 0,
+    'asistencia_total' => 0,
+];
+$asistenciaSemanaAdultos = (int) $datosAsistencia['asistencia_adultos'];
+$asistenciaSemanaNinos = (int) $datosAsistencia['asistencia_ninos'];
+$asistenciaSemana = (int) $datosAsistencia['asistencia_total'];
 
 $actividadReciente = $conexion
     ->query(
@@ -81,22 +90,26 @@ abrirPaginaAdmin(
 );
 ?>
 
-<div class="grid-4">
+<div class="grid-5">
     <div class="stat">
-        <div class="label">Asistencia semanal</div>
-        <div class="value"><?= $asistenciaSemana ?></div>
+        <div class="label">Asistencia semanal adultos</div>
+        <div class="value"><?= number_format($asistenciaSemanaAdultos) ?></div>
+    </div>
+    <div class="stat">
+        <div class="label">Asistencia semanal niños</div>
+        <div class="value"><?= number_format($asistenciaSemanaNinos) ?></div>
     </div>
     <div class="stat">
         <div class="label">Sectores activos</div>
-        <div class="value"><?= $totalSectores ?></div>
+        <div class="value"><?= number_format($totalSectores) ?></div>
     </div>
     <div class="stat">
         <div class="label">Células activas</div>
-        <div class="value"><?= $totalCelulas ?></div>
+        <div class="value"><?= number_format($totalCelulas) ?></div>
     </div>
     <div class="stat">
         <div class="label">Usuarios activos</div>
-        <div class="value"><?= $totalUsuarios ?></div>
+        <div class="value"><?= number_format($totalUsuarios) ?></div>
     </div>
 </div>
 

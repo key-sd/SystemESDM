@@ -1,6 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
     configurarFechaConsolidado();
     configurarTotalesConsolidado();
+    iniciarModalCelulas();
 });
 
 function configurarFechaConsolidado() {
@@ -104,4 +105,60 @@ function formatearDinero(valor) {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2
     }).format(valor);
+}
+
+function iniciarModalCelulas() {
+    const modalBackdrop = document.getElementById('modalCelulaDetalle');
+    const modalContent = document.getElementById('modalCelulaContenido');
+    if (!modalBackdrop || !modalContent) {
+        return;
+    }
+
+    const abrirModal = (celulaId) => {
+        const template = document.getElementById('tmpl-celula-' + celulaId);
+        if (!template) {
+            return;
+        }
+
+        modalContent.innerHTML = template.innerHTML;
+        modalBackdrop.style.display = 'flex';
+        modalBackdrop.setAttribute('aria-hidden', 'false');
+        document.body.style.overflow = 'hidden';
+
+        const closeBtn = modalContent.querySelector('.cell-modal-close');
+        if (closeBtn) {
+            closeBtn.addEventListener('click', cerrarModal);
+        }
+    };
+
+    const cerrarModal = () => {
+        modalBackdrop.style.display = 'none';
+        modalBackdrop.setAttribute('aria-hidden', 'true');
+        modalContent.innerHTML = '';
+        document.body.style.overflow = '';
+    };
+
+    document.querySelectorAll('[data-open-cell-modal]').forEach((elem) => {
+        elem.addEventListener('click', (e) => {
+            if (e.target.closest('a')) {
+                return;
+            }
+            const celulaId = elem.dataset.openCellModal;
+            if (celulaId) {
+                abrirModal(celulaId);
+            }
+        });
+    });
+
+    modalBackdrop.addEventListener('click', (e) => {
+        if (e.target === modalBackdrop) {
+            cerrarModal();
+        }
+    });
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && modalBackdrop.style.display === 'flex') {
+            cerrarModal();
+        }
+    });
 }

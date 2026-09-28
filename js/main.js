@@ -22,13 +22,48 @@ function configurarInstalacionApp() {
         aviso.id = 'instalarApp';
         aviso.className = 'install-app';
         aviso.type = 'button';
-        aviso.innerHTML = '<i class="ri-download-cloud-2-line"></i> Instalar ELIM SDM';
-        aviso.addEventListener('click', async () => {
-            eventoInstalacion?.prompt();
-            await eventoInstalacion?.userChoice;
-            aviso.remove();
-            eventoInstalacion = null;
+        aviso.setAttribute('title', 'Instalar aplicación ELIM SDM');
+        aviso.setAttribute('aria-label', 'Instalar aplicación ELIM SDM');
+        aviso.innerHTML = '<i class="ri-download-cloud-2-line"></i><span class="install-app-text">Instalar app</span>';
+
+        let colapsarTimer = null;
+
+        aviso.addEventListener('click', async (e) => {
+            e.stopPropagation();
+
+            const estaExpandido = aviso.classList.contains('is-expanded');
+            const esTactil = window.matchMedia('(hover: none)').matches;
+
+            // En dispositivos móviles (táctil), el primer toque expande el texto informativo
+            if (!estaExpandido && esTactil) {
+                aviso.classList.add('is-expanded');
+                clearTimeout(colapsarTimer);
+                colapsarTimer = setTimeout(() => {
+                    aviso.classList.remove('is-expanded');
+                }, 4000);
+                return;
+            }
+
+            // Si ya está expandido, es escritorio (hover) o es el segundo toque, lanzar instalador
+            if (eventoInstalacion) {
+                eventoInstalacion.prompt();
+                const resultado = await eventoInstalacion.userChoice;
+                if (resultado && resultado.outcome === 'accepted') {
+                    aviso.remove();
+                } else {
+                    aviso.classList.remove('is-expanded');
+                }
+            }
         });
+
+        // Colapsar suavemente al tocar fuera del botón
+        document.addEventListener('click', (e) => {
+            if (!aviso.contains(e.target)) {
+                aviso.classList.remove('is-expanded');
+                clearTimeout(colapsarTimer);
+            }
+        });
+
         document.body.append(aviso);
     });
 
@@ -90,7 +125,7 @@ function configurarSidebarMovil() {
 }
 
 function configurarTablasResponsivas() {
-    document.querySelectorAll('table').forEach((tabla) => {
+    document.querySelectorAll('table:not(.attendance-form-table)').forEach((tabla) => {
         const encabezados = Array.from(tabla.querySelectorAll('thead th'))
             .map((encabezado) => encabezado.textContent.trim());
 

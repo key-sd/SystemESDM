@@ -87,18 +87,27 @@ $consulta = $conexion->prepare(
 $consulta->execute([$inicioMes, $finMes]);
 $servicios = $consulta->fetchAll();
 
-$totales = ["asistencia" => 0, "ofrenda" => 0, "diezmos" => 0];
+$totales = [
+    "asistencia" => 0,
+    "asistencia_adultos" => 0,
+    "asistencia_ninos" => 0,
+    "ofrenda" => 0,
+    "diezmos" => 0,
+];
 foreach ($servicios as $servicio) {
     $totales["asistencia"] += (int) $servicio["asistencia_total"];
+    $totales["asistencia_adultos"] += (int) $servicio["asistencia_adultos"];
+    $totales["asistencia_ninos"] += (int) $servicio["asistencia_ninos"];
     $totales["ofrenda"] += (float) $servicio["ofrenda"];
     $totales["diezmos"] += (float) $servicio["diezmos"];
 }
 
-abrirPaginaAdmin("servicios", "Servicios y finanzas");
+abrirPaginaAdmin("servicios", "Servicios");
 ?>
 
-<div class="grid-3">
-    <div class="stat"><div class="label">Asistencia del mes</div><div class="value"><?= number_format($totales["asistencia"]) ?></div></div>
+<div class="grid-4">
+    <div class="stat"><div class="label">Asistencia adultos (mes)</div><div class="value"><?= number_format($totales["asistencia_adultos"]) ?></div></div>
+    <div class="stat"><div class="label">Asistencia niños (mes)</div><div class="value"><?= number_format($totales["asistencia_ninos"]) ?></div></div>
     <div class="stat"><div class="label">Ofrendas del mes</div><div class="value value-small">$<?= number_format($totales["ofrenda"], 2) ?></div></div>
     <div class="stat"><div class="label">Diezmos del mes</div><div class="value value-small">$<?= number_format($totales["diezmos"], 2) ?></div></div>
 </div>

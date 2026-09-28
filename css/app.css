@@ -1,6 +1,8 @@
 :root {
   --night: #010326;
   --night-2: #020540;
+  --navy: #010326;
+  --blue: #3061f2;
   --gold: #3061f2;
   --gold-soft: #edf2ff;
   --ivory: #ffffff;
@@ -14,6 +16,10 @@
 }
 * {
   box-sizing: border-box;
+}
+html, body {
+  max-width: 100%;
+  overflow-x: hidden;
 }
 body {
   margin: 0;
@@ -156,32 +162,71 @@ body {
   font-size: 13.5px;
   margin: 6px 0 0;
 }
-.grid-4 {
+.grid-5,
+.grid-4,
+.grid-3,
+.grid-2 {
   display: grid;
+  margin-top: 0;
+  margin-bottom: 24px;
+}
+.grid-5 {
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 18px;
+}
+.grid-4 {
   grid-template-columns: repeat(4, 1fr);
-  gap: 15px;
+  gap: 20px;
 }
 .grid-3 {
-  display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 15px;
+  gap: 20px;
 }
 .grid-2 {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 18px;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 22px;
 }
+
+/* Evitar que elementos dentro de una cuadrícula tengan márgenes que rompan el ritmo del grid */
+.grid-5 > *,
+.grid-4 > *,
+.grid-3 > *,
+.grid-2 > *,
+.section-split > * {
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+}
+
+/* Grillas que son el último hijo dentro de una tarjeta no deben añadir margen inferior extra */
+.card > .grid-5:last-child,
+.card > .grid-4:last-child,
+.card > .grid-3:last-child,
+.card > .grid-2:last-child {
+  margin-bottom: 0;
+}
+
 .stat,
 .card {
   background: var(--white);
   border: 1px solid var(--line);
   border-radius: 16px;
-  box-shadow: 0 4px 18px rgba(16, 36, 62, 0.035);
+  box-shadow: 0 4px 18px rgba(16, 36, 62, 0.04);
 }
 .stat {
-  padding: 18px;
+  padding: 20px 22px;
   position: relative;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 104px;
+  box-sizing: border-box;
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+.stat:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(16, 36, 62, 0.06);
 }
 .stat:after {
   content: "";
@@ -192,50 +237,66 @@ body {
   background: var(--gold-soft);
   right: -18px;
   top: -18px;
+  pointer-events: none;
 }
 .stat .label {
   color: var(--muted);
-  font-size: 10.5px;
+  font-size: 11px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.08em;
+  line-height: 1.35;
 }
 
 .stat .value {
-  font-family: "Space Grotesk";
-  font-size: 27px;
+  font-family: "Space Grotesk", sans-serif;
+  font-size: 28px;
   font-weight: 700;
   color: var(--night);
   margin-top: 8px;
+  line-height: 1.15;
+}
+
+.stat .value.value-small {
+  font-size: 22px;
 }
 
 .stat .hint {
-  font-size: 11.5px;
+  font-size: 12px;
   color: var(--green);
-  margin-top: 3px;
+  margin-top: 5px;
+}
+
+.stat small.muted {
+  font-size: 11.5px;
+  color: var(--muted);
+  margin-top: 5px;
+  display: block;
 }
 
 .card {
-  padding: 22px;
-  margin-top: 18px;
+  padding: 24px 26px;
+  margin-top: 0;
+  margin-bottom: 24px;
 }
 
 .card-head {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 15px;
-  margin-bottom: 18px;
+  gap: 16px;
+  margin-bottom: 20px;
 }
 .card h3 {
-  font-family: "Space Grotesk";
-  font-size: 17px;
+  font-family: "Space Grotesk", sans-serif;
+  font-size: 18px;
   margin: 0;
-  padding: 0px 0px 10px 0px;
+  padding: 0 0 4px 0;
+  letter-spacing: -0.01em;
 }
 .card p.muted {
   color: var(--muted);
-  font-size: 12px;
+  font-size: 12.5px;
   margin: 4px 0 0;
 }
 .toolbar {
@@ -391,19 +452,63 @@ textarea:focus {
 }
 .section-split {
   display: grid;
-  grid-template-columns: minmax(300px, 0.75fr) minmax(0, 1.5fr);
-  gap: 18px;
+  grid-template-columns: minmax(320px, 0.75fr) minmax(0, 1.5fr);
+  gap: 24px;
+  margin-top: 0;
+  margin-bottom: 26px;
 }
 .report-numbers {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+  margin-bottom: 28px;
+}
+@media (max-width: 992px) {
+  .report-numbers {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+}
+@media (max-width: 600px) {
+  .report-numbers {
+    grid-template-columns: 1fr;
+    gap: 12px;
+    margin-bottom: 24px;
+  }
 }
 .report-numbers small {
   display: block;
   color: var(--muted);
   font-size: 10.5px;
   margin-bottom: 5px;
+}
+.total-ofrenda-box {
+  background: linear-gradient(135deg, #f8fafc 0%, #edf2f7 100%);
+  border: 1.5px solid var(--line);
+  border-radius: 12px;
+  padding: 12px 16px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  min-height: 64px;
+  box-sizing: border-box;
+}
+.total-ofrenda-box .total-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 4px;
+}
+.total-ofrenda-box .total-value {
+  font-family: "Space Grotesk", sans-serif;
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--gold);
+  line-height: 1.1;
 }
 .check-grid {
   display: grid;
@@ -598,6 +703,7 @@ canvas {
 
 .card-flush {
   margin-top: 0;
+  margin-bottom: 24px;
 }
 
 .form-spaced {
@@ -605,7 +711,21 @@ canvas {
 }
 
 .form-section-title {
-  margin: 20px 0 10px;
+  margin: 36px 0 16px;
+  font-family: "Space Grotesk", sans-serif;
+  font-size: 16.5px;
+  font-weight: 700;
+  color: var(--night);
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding-bottom: 9px;
+  border-bottom: 1.5px solid #edf2f7;
+  letter-spacing: -0.01em;
+}
+.form-section-title i {
+  color: var(--gold);
+  font-size: 20px;
 }
 
 .inline-form {
@@ -744,51 +864,98 @@ canvas {
   .mobile-menu {
     display: inline-flex;
   }
+  .grid-5 {
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 16px;
+    margin-bottom: 22px;
+  }
   .grid-4,
   .grid-3 {
     grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+    margin-bottom: 22px;
   }
   .grid-2,
   .section-split {
     grid-template-columns: 1fr;
+    gap: 18px;
+    margin-bottom: 22px;
+  }
+  .card {
+    padding: 20px 18px;
+    margin-bottom: 22px;
+  }
+  .card-flush {
+    margin-bottom: 22px;
+  }
+  .stat {
+    padding: 18px 20px;
+    min-height: 96px;
   }
   .sector-summary {
     grid-template-columns: repeat(3, 1fr);
   }
   .stats-filters {
     align-items: stretch;
+    gap: 14px;
   }
 }
 @media (max-width: 600px) {
+  .grid-5,
   .grid-4,
   .grid-3,
+  .grid-2,
+  .section-split,
   .form-grid,
   .report-numbers,
   .check-grid {
     grid-template-columns: 1fr;
+    gap: 14px;
+    margin-bottom: 20px;
   }
   .form-grid .full {
     grid-column: auto;
   }
   .main {
-    padding: 20px 14px;
+    padding: 20px 14px 95px;
   }
   .page-title {
     font-size: 23px;
   }
   .topbar {
     gap: 10px;
+    margin-bottom: 18px;
+  }
+  .toolbar {
+    margin-bottom: 16px;
   }
   .toolbar .push {
     margin-left: 0;
   }
   .card {
-    padding: 16px;
+    padding: 18px 16px;
+    border-radius: 14px;
+    margin-bottom: 20px;
+  }
+  .card-flush {
+    margin-bottom: 20px;
+  }
+  .card-head {
+    margin-bottom: 16px;
+  }
+  .stat {
+    padding: 16px 15px;
+    min-height: 82px;
+    border-radius: 14px;
+  }
+  .stat .value {
+    font-size: 24px;
   }
   .stats-filters,
   .stats-custom-range {
     display: grid;
     grid-template-columns: 1fr;
+    gap: 12px;
   }
   .sector-summary {
     grid-template-columns: repeat(2, 1fr);
@@ -806,14 +973,14 @@ canvas {
     overflow: visible;
   }
 
-  table,
+  table:not(.attendance-form-table),
   .consolidated-table {
     display: block;
     min-width: 0;
     width: 100%;
   }
 
-  table thead {
+  table:not(.attendance-form-table) thead {
     position: absolute;
     width: 1px;
     height: 1px;
@@ -829,19 +996,19 @@ canvas {
     display: none;
   }
 
-  table tbody,
-  table tr,
-  table td {
+  table:not(.attendance-form-table) tbody,
+  table:not(.attendance-form-table) tr,
+  table:not(.attendance-form-table) td {
     display: block;
     width: 100%;
   }
 
-  table tbody {
+  table:not(.attendance-form-table) tbody {
     display: grid;
     gap: 14px;
   }
 
-  table tbody tr {
+  table:not(.attendance-form-table) tbody tr {
     padding: 8px 14px;
     border: 1px solid var(--line);
     border-left: 4px solid var(--gold);
@@ -850,7 +1017,7 @@ canvas {
     box-shadow: 0 7px 20px rgba(2, 5, 64, 0.06);
   }
 
-  table tbody td {
+  table:not(.attendance-form-table) tbody td {
     display: grid;
     grid-template-columns: minmax(105px, 38%) minmax(0, 1fr);
     align-items: center;
@@ -862,11 +1029,11 @@ canvas {
     overflow-wrap: anywhere;
   }
 
-  table tbody td:last-child {
+  table:not(.attendance-form-table) tbody td:last-child {
     border-bottom: 0;
   }
 
-  table tbody td::before {
+  table:not(.attendance-form-table) tbody td::before {
     content: attr(data-label);
     color: var(--muted);
     font-size: 10px;
@@ -876,9 +1043,9 @@ canvas {
     text-transform: uppercase;
   }
 
-  table tbody td .badge,
-  table tbody td .btn,
-  table tbody td .inline-form {
+  table:not(.attendance-form-table) tbody td .badge,
+  table:not(.attendance-form-table) tbody td .btn,
+  table:not(.attendance-form-table) tbody td .inline-form {
     justify-self: end;
   }
 
@@ -911,24 +1078,654 @@ canvas {
 
 .install-app {
   position: fixed;
-  z-index: 100;
+  z-index: 998;
   right: 18px;
-  bottom: 18px;
+  bottom: 22px;
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  border: 0;
-  border-radius: 999px;
-  padding: 12px 16px;
-  background: var(--navy);
-  box-shadow: 0 10px 28px rgba(2, 5, 64, 0.25);
-  color: #fff;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  padding: 0;
+  border: 1.5px solid rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  background: #010326;
+  background: linear-gradient(145deg, #010326 0%, #1e3a8a 100%);
+  box-shadow: 0 8px 24px rgba(1, 3, 38, 0.35);
+  color: #ffffff;
   cursor: pointer;
-  font: inherit;
+  font-family: inherit;
+  font-size: 13.5px;
   font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.install-app i {
+  font-size: 22px;
+  line-height: 1;
+  flex-shrink: 0;
+  color: #ffd166;
+}
+
+.install-app .install-app-text {
+  max-width: 0;
+  opacity: 0;
+  overflow: hidden;
+  margin-left: 0;
+  transition: max-width 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.25s ease, margin 0.3s ease;
 }
 
 .install-app:hover,
-.install-app:focus-visible {
-  background: var(--blue);
+.install-app:focus-visible,
+.install-app.is-expanded {
+  width: auto;
+  border-radius: 999px;
+  padding: 0 18px 0 14px;
+  box-shadow: 0 10px 28px rgba(30, 58, 138, 0.45);
+  background: linear-gradient(145deg, #020540 0%, #2563eb 100%);
+}
+
+.install-app:hover .install-app-text,
+.install-app:focus-visible .install-app-text,
+.install-app.is-expanded .install-app-text {
+  max-width: 140px;
+  opacity: 1;
+  margin-left: 8px;
+}
+
+/* =========================================================
+   SystemESDM: Distintivo de Célula, Miembros y Subformularios
+   ========================================================= */
+.badge-celula {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 11px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+.badge-celula-adultos {
+  background: #eef2ff;
+  color: #1e40af;
+  border: 1px solid #c7d2fe;
+}
+.badge-celula-juvenil {
+  background: #e0f2fe;
+  color: #0369a1;
+  border: 1px solid #bae6fd;
+}
+.badge-celula-infantil {
+  background: #fef3c7;
+  color: #92400e;
+  border: 1px solid #fde68a;
+}
+
+.celula-info-banner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 16px 20px;
+  background: #ffffff;
+  border: 1px solid var(--line);
+  border-radius: 13px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 8px rgba(2, 5, 64, 0.04);
+}
+.celula-info-banner .banner-details {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.celula-info-banner .banner-details h2 {
+  margin: 0;
+  font-family: "Space Grotesk", sans-serif;
+  font-size: 20px;
+  color: var(--night);
+}
+.celula-info-banner .banner-meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 12.5px;
+  color: var(--muted);
+  flex-wrap: wrap;
+}
+
+/* Subformularios interactivos en reporte */
+.subform-toggle-card {
+  border: 1.5px solid var(--line);
+  border-radius: 13px;
+  margin-bottom: 22px;
+  background: #ffffff;
+  overflow: hidden;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.subform-toggle-card.is-active {
+  border-color: var(--gold);
+  box-shadow: 0 6px 22px rgba(48, 97, 242, 0.08);
+}
+.subform-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  background: #f8fafc;
+  cursor: pointer;
+  user-select: none;
+  transition: background-color 0.2s;
+}
+.subform-header:hover {
+  background: #f1f5f9;
+}
+.subform-header-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.subform-header-left i {
+  font-size: 22px;
+  color: var(--gold);
+}
+.subform-header-left h4 {
+  margin: 0;
+  font-size: 15.5px;
+  font-weight: 700;
+  color: var(--ink);
+}
+.subform-header-left p {
+  margin: 3px 0 0;
+  font-size: 12px;
+  color: var(--muted);
+}
+.subform-body {
+  display: none;
+  padding: 22px 20px;
+  border-top: 1px solid var(--line);
+  background: #ffffff;
+}
+.subform-toggle-card.is-active .subform-body {
+  display: block;
+}
+
+/* Interruptor moderno */
+.switch-toggle {
+  position: relative;
+  display: inline-block;
+  width: 46px;
+  height: 25px;
+  flex-shrink: 0;
+}
+.switch-toggle input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+  margin: 0;
+}
+.switch-slider {
+  position: absolute;
+  cursor: pointer;
+  inset: 0;
+  background-color: #cbd5e1;
+  transition: 0.25s;
+  border-radius: 999px;
+}
+.switch-slider:before {
+  position: absolute;
+  content: "";
+  height: 19px;
+  width: 19px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  transition: 0.25s;
+  border-radius: 50%;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+}
+.switch-toggle input:checked + .switch-slider {
+  background-color: var(--gold);
+}
+.switch-toggle input:checked + .switch-slider:before {
+  transform: translateX(21px);
+}
+
+/* Tarjetas dinámicas de registros */
+.dynamic-rows-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+.dynamic-card-item {
+  position: relative;
+  background: #f8fafc;
+  border: 1.5px solid var(--line);
+  border-radius: 12px;
+  padding: 18px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.dynamic-card-item:hover {
+  border-color: #cbd5e1;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.03);
+}
+.dynamic-card-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  padding-bottom: 10px;
+  border-bottom: 1px dashed #cbd5e1;
+}
+.dynamic-card-head strong {
+  font-size: 13px;
+  color: var(--night);
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.dynamic-card-head .btn-remove-row {
+  padding: 4px 8px;
+  font-size: 11px;
+  color: var(--red);
+  background: #fee2e2;
+  border: 0;
+  border-radius: 6px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-weight: 600;
+}
+.dynamic-card-head .btn-remove-row:hover {
+  background: #fca5a5;
+}
+
+.subform-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 12px;
+}
+.subform-col-2 {
+  grid-column: span 2;
+}
+.subform-col-full {
+  grid-column: 1 / -1;
+}
+.subform-grid label {
+  font-size: 11px;
+  margin-bottom: 4px;
+}
+.subform-grid input,
+.subform-grid select {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  padding: 8px 10px;
+  font-size: 12.5px;
+}
+.subform-checks {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  flex-wrap: wrap;
+  padding-top: 4px;
+}
+.subform-checks label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  margin: 0;
+}
+.subform-checks input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
+
+.subform-actions {
+  display: flex;
+  justify-content: flex-start;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+/* Tablas detalladas para vista de comprobante/detalle */
+.detail-subtable-wrap {
+  margin-top: 12px;
+  overflow-x: auto;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+}
+.detail-subtable {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 600px;
+}
+.detail-subtable th {
+  background: #f8fafc;
+  padding: 9px 12px;
+  font-size: 10.5px;
+  color: var(--muted);
+  font-weight: 700;
+  text-transform: uppercase;
+  border-bottom: 1px solid var(--line);
+}
+.detail-subtable td {
+  padding: 10px 12px;
+  font-size: 12px;
+  border-bottom: 1px solid #f1f5f9;
+}
+.detail-subtable tr:last-child td {
+  border-bottom: 0;
+}
+
+/* Tabla formal de asistencia para el reporte del líder */
+.attendance-table-wrap {
+  overflow-x: auto;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  margin-bottom: 22px;
+  background: #ffffff;
+  box-shadow: 0 2px 10px rgba(2, 5, 64, 0.03);
+}
+.attendance-form-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+@media (min-width: 769px) {
+  .attendance-form-table {
+    min-width: 620px;
+  }
+}
+.attendance-form-table th.th-section {
+  padding: 10px 14px;
+  font-size: 11.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-bottom: 1px solid var(--line);
+  text-align: center;
+}
+.attendance-form-table th.th-adultos {
+  background: #eef2ff;
+  color: #1e40af;
+  border-right: 1px solid #c7d2fe;
+}
+.attendance-form-table th.th-jovenes {
+  background: #f0fdfa;
+  color: #0f766e;
+  border-right: 1px solid #ccfbf1;
+}
+.attendance-form-table th.th-ninos {
+  background: #fffbeb;
+  color: #b45309;
+  border-right: 1px solid #fef3c7;
+}
+.attendance-form-table th.th-total {
+  background: #010326;
+  color: #ffffff;
+}
+.attendance-form-table tr.th-sub th {
+  background: #fafafa;
+  color: var(--muted);
+  font-size: 10.5px;
+  padding: 8px 12px;
+  border-bottom: 2px solid var(--line);
+  text-align: center;
+}
+.attendance-form-table td {
+  padding: 14px 12px;
+  vertical-align: middle;
+  text-align: center;
+}
+.attendance-form-table input[type="number"] {
+  width: 100%;
+  max-width: 130px;
+  font-size: 16px;
+  font-weight: 700;
+  padding: 10px 8px;
+  text-align: center;
+  border-radius: 8px;
+  margin: 0 auto;
+}
+.td-total-highlight {
+  background: #f8fafc;
+  text-align: center;
+  border-left: 2px solid var(--line);
+  padding: 10px 16px !important;
+  min-width: 160px;
+}
+.total-big-number {
+  font-family: "Space Grotesk", sans-serif;
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--gold);
+  line-height: 1.1;
+}
+.total-rule-caption {
+  display: block;
+  font-size: 10px;
+  color: var(--muted);
+  margin-top: 4px;
+  line-height: 1.25;
+}
+.badge-req {
+  font-size: 9.5px;
+  padding: 2px 6px;
+  background: #fee2e2;
+  color: #b91c1c;
+  border-radius: 4px;
+  margin-left: 5px;
+  font-weight: 600;
+  text-transform: none;
+}
+.mobile-td-label {
+  display: none;
+}
+
+/* =========================================================
+   Ajustes Móviles para Asistencia, Subformularios y Reporte
+   ========================================================= */
+@media (max-width: 768px) {
+  /* Separación de títulos y tarjetas en móvil */
+  .form-section-title {
+    margin: 32px 0 16px !important;
+    font-size: 15.5px !important;
+    padding-bottom: 8px !important;
+  }
+  .form-section-title i {
+    font-size: 18px !important;
+  }
+
+  /* Subformularios en móvil: 1 columna, espaciado cómodo */
+  .subform-toggle-card {
+    border-radius: 13px !important;
+    margin-bottom: 20px !important;
+  }
+  .subform-grid {
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+  }
+  .subform-grid > div,
+  .subform-col-2,
+  .subform-col-full,
+  .subform-grid [style*="grid-column"] {
+    grid-column: 1 / -1 !important;
+  }
+  .subform-grid label {
+    font-size: 12px !important;
+    font-weight: 600 !important;
+    margin-bottom: 6px !important;
+  }
+  .subform-grid input,
+  .subform-grid select {
+    padding: 11px 12px !important;
+    font-size: 14px !important;
+    border-radius: 9px !important;
+    min-height: 44px !important;
+    border: 1.5px solid var(--line) !important;
+  }
+  .subform-header {
+    padding: 15px 16px !important;
+  }
+  .subform-header-left {
+    min-width: 0;
+    flex: 1;
+    gap: 12px;
+  }
+  .subform-header-left h4 {
+    font-size: 14.5px;
+    word-break: break-word;
+  }
+  .subform-header-left p {
+    font-size: 11.5px;
+    margin-top: 3px;
+  }
+  .subform-body {
+    padding: 16px 14px !important;
+  }
+  .dynamic-rows-container {
+    gap: 14px !important;
+    margin-bottom: 16px !important;
+  }
+  .dynamic-card-item {
+    padding: 15px 13px !important;
+    border-radius: 12px !important;
+  }
+  .subform-checks {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 11px;
+    padding-top: 6px;
+  }
+  .subform-checks label {
+    font-size: 13px;
+    line-height: 1.35;
+  }
+
+  /* Tabla de asistencia convertida a cuadrícula moderna en móvil */
+  .attendance-table-wrap {
+    overflow-x: visible !important;
+    border: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    margin-bottom: 26px !important;
+  }
+  .attendance-form-table {
+    display: block !important;
+    min-width: 0 !important;
+    width: 100% !important;
+    border: 0 !important;
+  }
+  .attendance-form-table thead {
+    display: none !important;
+  }
+  .attendance-form-table tbody {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 10px !important;
+    width: 100% !important;
+  }
+  .attendance-form-table tbody tr {
+    display: contents !important;
+  }
+  .attendance-form-table td {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    text-align: left !important;
+    padding: 12px !important;
+    background: #ffffff !important;
+    border: 1px solid var(--line) !important;
+    border-radius: 12px !important;
+    box-shadow: 0 2px 6px rgba(2, 5, 64, 0.03) !important;
+    min-height: auto !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+  }
+  .attendance-form-table td::before {
+    display: none !important;
+  }
+  .mobile-td-label {
+    display: flex !important;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    margin-bottom: 8px;
+  }
+  .mobile-td-label i {
+    font-size: 14px;
+    color: var(--gold);
+  }
+  .attendance-form-table input[type="number"] {
+    width: 100% !important;
+    max-width: none !important;
+    padding: 10px 8px !important;
+    font-size: 18px !important;
+    font-weight: 700 !important;
+    text-align: center !important;
+    border: 1.5px solid var(--line) !important;
+    background: #f8fafc !important;
+    border-radius: 8px !important;
+    color: var(--ink) !important;
+    box-sizing: border-box !important;
+  }
+  .attendance-form-table input[type="number"]:focus {
+    background: #ffffff !important;
+    border-color: var(--gold) !important;
+    outline: none !important;
+  }
+  .attendance-form-table td.td-ninos {
+    grid-column: 1 / -1 !important;
+  }
+  .attendance-form-table td.td-total-highlight {
+    grid-column: 1 / -1 !important;
+    background: #010326 !important;
+    border: 1px solid #1e3a8a !important;
+    border-radius: 14px !important;
+    padding: 16px !important;
+    text-align: center !important;
+    align-items: center !important;
+    border-left: 1px solid #1e3a8a !important;
+    min-width: 0 !important;
+  }
+  .attendance-form-table td.td-total-highlight .mobile-td-label {
+    color: #93c5fd !important;
+    justify-content: center;
+    font-size: 12px;
+  }
+  .attendance-form-table td.td-total-highlight .mobile-td-label i {
+    color: #ffd166 !important;
+  }
+  .attendance-form-table td.td-total-highlight .total-big-number {
+    color: #ffd166 !important;
+    font-size: 32px !important;
+  }
+  .attendance-form-table td.td-total-highlight .total-rule-caption {
+    color: #cbd5e1 !important;
+    font-size: 11px !important;
+    text-align: center !important;
+  }
+
+  @media (max-width: 400px) {
+    .attendance-form-table tbody {
+      grid-template-columns: 1fr !important;
+      gap: 10px !important;
+    }
+  }
 }

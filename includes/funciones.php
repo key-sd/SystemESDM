@@ -39,9 +39,41 @@ function fechaBonita(?string $fecha): string
 
 function semanaActual(): string
 {
-    // Las células se reúnen en sábado; esa fecha identifica de forma única
-    // el reporte semanal, aunque sea entregado el domingo.
+    // El sábado que identifica el cierre semanal de las células
     return date("Y-m-d", strtotime("saturday this week"));
+}
+
+function inicioSemanaActual(): string
+{
+    return date("Y-m-d", strtotime("monday this week"));
+}
+
+function finSemanaActual(): string
+{
+    return date("Y-m-d", strtotime("sunday this week"));
+}
+
+function validarFechaReporteCelula(?string $fecha): string
+{
+    $objeto = DateTimeImmutable::createFromFormat("!Y-m-d", (string) $fecha);
+    $errores = DateTimeImmutable::getLastErrors();
+
+    if (!$objeto || ($errores !== false && ($errores["warning_count"] || $errores["error_count"]))) {
+        throw new InvalidArgumentException("Selecciona una fecha válida para el reporte.");
+    }
+
+    $hoy = new DateTimeImmutable("today");
+    $limiteFuturo = $hoy->modify("sunday this week");
+    if ($objeto > $limiteFuturo) {
+        throw new InvalidArgumentException("La fecha de la reunión no puede ser una fecha futura.");
+    }
+
+    return $objeto->format("Y-m-d");
+}
+
+function anioSemanaReporte(string $fecha): int
+{
+    return (int) (new DateTimeImmutable($fecha))->format("oW");
 }
 
 function fechaReporteSemanal(?string $fecha): string
@@ -53,11 +85,20 @@ function fechaReporteSemanal(?string $fecha): string
         throw new InvalidArgumentException("Selecciona una fecha válida para el reporte.");
     }
 
-    // El sábado que cierra la semana de la reunión. Así no puede existir un
-    // segundo reporte de la misma semana por cambiar solamente el día.
+    // El sábado que cierra la semana de la reunión.
     if ((int) $objeto->format("N") === 7) {
         return $objeto->modify("-1 day")->format("Y-m-d");
     }
 
     return $objeto->modify("saturday this week")->format("Y-m-d");
+}
+
+function etiquetaTipoCelula(?string $tipo): string
+{
+    return match ($tipo) {
+        "adultos" => "Adultos",
+        "jovenes" => "Juvenil",
+        "ninos" => "Infantil",
+        default => $tipo ? ucfirst($tipo) : "General",
+    };
 }
