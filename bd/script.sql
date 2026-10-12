@@ -1,8 +1,22 @@
--- MySQL 8.0+ / MariaDB 10.6+. Ejecutar en una base nueva o vacía.
+-- MySQL 8.0+ / MariaDB 10.4+. Compatible con local (XAMPP) y hosting remoto (InfinityFree, cPanel).
+SET FOREIGN_KEY_CHECKS = 0;
+SET NAMES utf8mb4;
+SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 
-CREATE DATABASE IF NOT EXISTS db_systemelimsdm
-    CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-USE db_systemelimsdm;
+-- Limpieza preventiva para evitar conflictos si se vuelve a ejecutar
+DROP TABLE IF EXISTS metas_asignaciones_sector;
+DROP TABLE IF EXISTS metas;
+DROP TABLE IF EXISTS servicios_iglesia;
+DROP TABLE IF EXISTS reportes_sup_detalle;
+DROP TABLE IF EXISTS reportes_supervisor;
+DROP TABLE IF EXISTS reportes_lider_visitas;
+DROP TABLE IF EXISTS reportes_lider_bautismos;
+DROP TABLE IF EXISTS reportes_lider_conversiones;
+DROP TABLE IF EXISTS reportes_lider;
+DROP TABLE IF EXISTS miembros_celula;
+DROP TABLE IF EXISTS celulas;
+DROP TABLE IF EXISTS usuarios;
+DROP TABLE IF EXISTS sectores;
 
 CREATE TABLE sectores (
     id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
@@ -282,3 +296,5 @@ INSERT INTO usuarios (nombre_completo, usuario, password, rol) VALUES
     ('Administrador de prueba', 'admin', '$2y$10$VZtHXRRBHJaBbKXcJxKaX.Oi0VunaYnnhwz.QR.xelkTrYXBkAY5i', 'admin'),
     ('Supervisor de prueba', 'supervisor', '$2y$10$VZtHXRRBHJaBbKXcJxKaX.Oi0VunaYnnhwz.QR.xelkTrYXBkAY5i', 'supervisor'),
     ('Líder de prueba', 'lider', '$2y$10$VZtHXRRBHJaBbKXcJxKaX.Oi0VunaYnnhwz.QR.xelkTrYXBkAY5i', 'lider');
+
+SET FOREIGN_KEY_CHECKS = 1;

@@ -1,9 +1,21 @@
 <?php
-// Conexión a la base de datos local (MySQL / phpMyAdmin de XAMPP)
-$host = "localhost";
-$db   = "db_systemelimsdm";
-$user = "root";
-$pass = "";
+// Detección automática: Entorno local (XAMPP) o InfinityFree
+$isLocal = in_array($_SERVER['SERVER_NAME'] ?? '', ['localhost', '127.0.0.1'])
+           || (php_sapi_name() === 'cli' && getenv('APP_ENV') !== 'production');
+
+if ($isLocal) {
+    // Configuración local (XAMPP / phpMyAdmin)
+    $host = "localhost";
+    $db   = "db_systemelimsdm";
+    $user = "root";
+    $pass = "";
+} else {
+    // Configuración en InfinityFree (obtenida de tu panel de control)
+    $host = "sql101.infinityfree.com";
+    $db   = "if0_43028489_db_systemelimsdm";
+    $user = "if0_43028489";
+    $pass = "Ksanchez794"; 
+}
 
 try {
     $conexion = new PDO(

@@ -1,0 +1,6 @@
+# Redirección automática a HTTPS (solo en producción/InfinityFree, sin afectar localhost)
+RewriteEngine On
+RewriteCond %{HTTP_HOST} !^(localhost|127\.0\.0\.1)(:\d+)?$
+RewriteCond %{HTTP:X-Forwarded-Proto} =http [OR]
+RewriteCond %{HTTPS} off
+RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]

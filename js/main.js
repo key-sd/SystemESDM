@@ -1,3 +1,8 @@
+// Forzar HTTPS en producción para que el navegador habilite la PWA y Service Worker
+if (location.protocol === 'http:' && !['localhost', '127.0.0.1'].includes(location.hostname)) {
+    location.replace(location.href.replace(/^http:/, 'https:'));
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     configurarVisibilidadPassword();
     configurarSidebarMovil();
@@ -7,20 +12,30 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function configurarInstalacionApp() {
-    if (!('serviceWorker' in navigator)) return;
-
-    const base = window.APP_BASE_URL || '';
-    navigator.serviceWorker.register(`${base}/sw.js`).catch(() => {});
+    // Si ya estamos dentro de la app instalada (modo standalone), no mostrar el botón
+    const esModoStandalone = window.matchMedia('(display-mode: standalone)').matches 
+                          || window.navigator.standalone === true;
+    if (esModoStandalone) return;
 
     // No mostrar el botón de instalación en la pantalla de login
     if (document.querySelector('.pagina-login')) return;
 
-    let eventoInstalacion;
+    // Registrar service worker si está soportado
+    if ('serviceWorker' in navigator) {
+        const base = window.APP_BASE_URL || '';
+        navigator.serviceWorker.register(`${base}/sw.js`).catch(() => {});
+    }
+
+    let eventoInstalacion = null;
+
+    // Escuchar el evento nativo de instalación si el navegador lo dispara
     window.addEventListener('beforeinstallprompt', (evento) => {
         evento.preventDefault();
         eventoInstalacion = evento;
-        if (document.getElementById('instalarApp')) return;
+    });
 
+    // Crear el botón visible de instalación si aún no existe
+    if (!document.getElementById('instalarApp')) {
         const aviso = document.createElement('button');
         aviso.id = 'instalarApp';
         aviso.className = 'install-app';
@@ -47,7 +62,7 @@ function configurarInstalacionApp() {
                 return;
             }
 
-            // Si ya está expandido, es escritorio (hover) o es el segundo toque, lanzar instalador
+            // Si el navegador ya tiene listo el evento de instalación nativo
             if (eventoInstalacion) {
                 eventoInstalacion.prompt();
                 const resultado = await eventoInstalacion.userChoice;
@@ -56,6 +71,21 @@ function configurarInstalacionApp() {
                 } else {
                     aviso.classList.remove('is-expanded');
                 }
+                return;
+            }
+
+            // Si estamos en HTTP (no seguro), redirigir a HTTPS
+            if (location.protocol === 'http:' && !['localhost', '127.0.0.1'].includes(location.hostname)) {
+                location.replace(location.href.replace(/^http:/, 'https:'));
+                return;
+            }
+
+            // Si es iOS o el navegador requiere instalación manual:
+            const esIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+            if (esIOS) {
+                alert("Para instalar la app en tu iPhone:\n1. Toca el botón Compartir (cuadro con flecha arriba).\n2. Selecciona 'Agregar a pantalla de inicio'.");
+            } else {
+                alert("Para instalar la app:\n1. Toca el menú de 3 puntos (⋮) de tu navegador.\n2. Selecciona 'Instalar aplicación' o 'Agregar a la pantalla principal'.");
             }
         });
 
@@ -68,7 +98,7 @@ function configurarInstalacionApp() {
         });
 
         document.body.append(aviso);
-    });
+    }
 
     window.addEventListener('appinstalled', () => {
         document.getElementById('instalarApp')?.remove();
