@@ -250,7 +250,7 @@ CREATE TABLE metas (
     tipo ENUM('celulas', 'asistencia_adultos', 'asistencia_ninos', 'conversiones', 'visitas', 'bautismos') NOT NULL,
     objetivo DECIMAL(12,2) NOT NULL,
     sector_id INT UNSIGNED NULL,
-    sector_id_unico INT UNSIGNED AS (COALESCE(sector_id, 0)) STORED,
+    sector_id_unico INT UNSIGNED NOT NULL DEFAULT 0,
     creado_por INT UNSIGNED NULL,
     creado_en TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     actualizado_en TIMESTAMP NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
@@ -277,9 +277,7 @@ CREATE TABLE metas_asignaciones_sector (
         REFERENCES sectores(id) ON UPDATE CASCADE ON DELETE RESTRICT
 ) ENGINE=InnoDB;
 
--- Cuentas temporales para probar cada rol en una instalación limpia.
--- Contraseña para las tres: Prueba2026!
--- Cámbialas o elimínalas antes de poner el sistema en producción.
+
 INSERT INTO usuarios (nombre_completo, usuario, password, rol) VALUES
     ('Administrador de prueba', 'admin', '$2y$10$VZtHXRRBHJaBbKXcJxKaX.Oi0VunaYnnhwz.QR.xelkTrYXBkAY5i', 'admin'),
     ('Supervisor de prueba', 'supervisor', '$2y$10$VZtHXRRBHJaBbKXcJxKaX.Oi0VunaYnnhwz.QR.xelkTrYXBkAY5i', 'supervisor'),

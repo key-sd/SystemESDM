@@ -101,30 +101,45 @@ abrirPaginaAdmin("reportes", "Detalle del reporte del supervisor");
             <thead>
                 <tr>
                     <th>Célula / líder</th>
+                    <th>Tipo</th>
                     <th>Adultos amigos</th><th>Adultos hermanos</th>
                     <th>Jóvenes amigos</th><th>Jóvenes hermanos</th><th>Niños</th>
-                    <th>Total personas</th><th>Conversiones</th><th>Visitas</th><th title="Bautismos en agua">Bautismos</th>
+                    <th>Total Célula</th>
+                    <th>Total Personas</th><th>Conversiones</th><th>Visitas</th><th title="Bautismos en agua">Bautismos</th>
                     <th>Iglesia</th><th>Misiones</th><th>Transporte</th>
                 </tr>
             </thead>
             <tbody>
                 <?php foreach ($detalles as $detalle): ?>
-                    <?php $personas = $detalle["adultos_amigos"] + $detalle["adultos_hermanos"] + $detalle["jovenes_amigos"] + $detalle["jovenes_hermanos"] + $detalle["ninos"]; ?>
+                    <?php
+                    $tipo = $detalle["tipo_celula"] ?? "adultos";
+                    $totAd = (int)$detalle["adultos_amigos"] + (int)$detalle["adultos_hermanos"];
+                    $totJov = (int)$detalle["jovenes_amigos"] + (int)$detalle["jovenes_hermanos"];
+                    $totNin = (int)$detalle["ninos"];
+                    $totCelula = ($tipo === "ninos") ? $totNin : (($tipo === "jovenes") ? $totJov : $totAd);
+                    $personas = $totAd + $totJov + $totNin;
+                    $totales["celulas_total"] = ($totales["celulas_total"] ?? 0) + $totCelula;
+                    ?>
                     <tr>
                         <td><strong><?= e($detalle["celula"] ?? "Célula no disponible") ?></strong><br><?= e($detalle["lider"] ?? "Sin líder") ?></td>
+                        <td><span class="badge-celula badge-celula-<?= e($tipo) ?>"><?= ucfirst(e($tipo)) ?></span></td>
                         <td><?= $detalle["adultos_amigos"] ?></td><td><?= $detalle["adultos_hermanos"] ?></td>
                         <td><?= $detalle["jovenes_amigos"] ?></td><td><?= $detalle["jovenes_hermanos"] ?></td><td><?= $detalle["ninos"] ?></td>
-                        <td><strong><?= $personas ?></strong></td><td><?= $detalle["conversiones"] ?></td><td><?= $detalle["visitas_programadas"] ?></td><td><?= $detalle["bautismos_agua"] ?></td>
+                        <td style="background: #f8fafc; text-align: center;"><strong><?= $totCelula ?></strong> <small class="muted" style="display: block; font-size: 9.5px;"><?= ucfirst($tipo) ?></small></td>
+                        <td style="background: #eff6ff; text-align: center;"><strong style="color: #1d4ed8;"><?= $personas ?></strong> <small class="muted" style="display: block; font-size: 9.5px;">Global</small></td>
+                        <td><?= $detalle["conversiones"] ?></td><td><?= $detalle["visitas_programadas"] ?></td><td><?= $detalle["bautismos_agua"] ?></td>
                         <td>$<?= number_format($detalle["ofrenda_iglesia"], 2) ?></td><td>$<?= number_format($detalle["ofrenda_misiones"], 2) ?></td><td>$<?= number_format($detalle["ofrenda_bus"], 2) ?></td>
                     </tr>
                 <?php endforeach; ?>
             </tbody>
             <tfoot>
                 <tr class="consolidated-totals">
-                    <td><strong>TOTALES</strong></td>
+                    <td colspan="2"><strong>TOTALES</strong></td>
                     <td><?= $totales["adultos_amigos"] ?></td><td><?= $totales["adultos_hermanos"] ?></td>
                     <td><?= $totales["jovenes_amigos"] ?></td><td><?= $totales["jovenes_hermanos"] ?></td><td><?= $totales["ninos"] ?></td>
-                    <td><strong><?= $totalPersonas ?></strong></td><td><?= $totales["conversiones"] ?></td><td><?= $totales["visitas_programadas"] ?></td><td><?= $totales["bautismos_agua"] ?></td>
+                    <td style="text-align: center;"><strong><?= $totales["celulas_total"] ?? 0 ?></strong></td>
+                    <td style="text-align: center;"><strong style="color: #1d4ed8;"><?= $totalPersonas ?></strong></td>
+                    <td><?= $totales["conversiones"] ?></td><td><?= $totales["visitas_programadas"] ?></td><td><?= $totales["bautismos_agua"] ?></td>
                     <td>$<?= number_format($totales["ofrenda_iglesia"], 2) ?></td><td>$<?= number_format($totales["ofrenda_misiones"], 2) ?></td><td>$<?= number_format($totales["ofrenda_bus"], 2) ?></td>
                 </tr>
             </tfoot>

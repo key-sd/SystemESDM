@@ -82,6 +82,7 @@ $consulta = $conexion->prepare(
         r.*,
         u.nombre_completo,
         c.nombre AS celula,
+        c.tipo AS tipo_celula,
         s.nombre AS sector
      FROM reportes_lider r
      INNER JOIN usuarios u ON u.id = r.lider_id
@@ -184,7 +185,8 @@ abrirPaginaAdmin(
                     <th>Fecha</th>
                     <th>Líder / célula</th>
                     <th>Sector</th>
-                    <th>Asistencia</th>
+                    <th>Total Célula</th>
+                    <th>Total Global</th>
                     <th>Ofrenda</th>
                     <th>Enviado</th>
                     <th>Actualizado</th>
@@ -194,6 +196,14 @@ abrirPaginaAdmin(
             </thead>
             <tbody>
                 <?php foreach ($reportesLider as $reporte): ?>
+                    <?php
+                    $tipoCel = $reporte["tipo_celula"] ?? "adultos";
+                    $totAd = (int) $reporte["adultos_amigos"] + (int) $reporte["adultos_hermanos"];
+                    $totJov = (int) $reporte["jovenes_amigos"] + (int) $reporte["jovenes_hermanos"];
+                    $totNin = (int) $reporte["ninos"];
+                    $totGrupo = ($tipoCel === "ninos") ? $totNin : (($tipoCel === "jovenes") ? $totJov : $totAd);
+                    $lblGrupo = ($tipoCel === "ninos") ? "niños" : (($tipoCel === "jovenes") ? "jóvenes" : "adultos");
+                    ?>
                     <tr>
                         <td><?= date(
                             "d/m/Y",
@@ -206,7 +216,8 @@ abrirPaginaAdmin(
                             <?= e($reporte["celula"]) ?>
                         </td>
                         <td><?= e($reporte["sector"]) ?></td>
-                        <td><?= $reporte["total_asistencia"] ?></td>
+                        <td><strong><?= $totGrupo ?></strong> <small class="muted">(<?= $lblGrupo ?>)</small></td>
+                        <td><strong style="color: #2563eb;"><?= $reporte["total_asistencia"] ?></strong> <small class="muted">(global)</small></td>
                         <td>$<?= number_format(
                             $reporte["ofrenda_total"],
                             2,

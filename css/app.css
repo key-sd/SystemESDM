@@ -1513,6 +1513,39 @@ canvas {
   color: var(--gold);
   line-height: 1.1;
 }
+.totals-dual-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+.total-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 65px;
+}
+.total-box-divider {
+  width: 1px;
+  height: 38px;
+  background: var(--line);
+}
+.total-badge-label {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+  margin-bottom: 2px;
+  white-space: nowrap;
+}
+.total-badge-global {
+  color: #2563eb;
+}
+.total-global-number {
+  color: #2563eb !important;
+}
 .total-rule-caption {
   display: block;
   font-size: 10px;
@@ -1720,6 +1753,18 @@ canvas {
     color: #cbd5e1 !important;
     font-size: 11px !important;
     text-align: center !important;
+  }
+  .attendance-form-table td.td-total-highlight .total-box-divider {
+    background: rgba(255, 255, 255, 0.2) !important;
+  }
+  .attendance-form-table td.td-total-highlight .total-badge-label {
+    color: #93c5fd !important;
+  }
+  .attendance-form-table td.td-total-highlight .total-badge-global {
+    color: #60a5fa !important;
+  }
+  .attendance-form-table td.td-total-highlight .total-global-number {
+    color: #60a5fa !important;
   }
 
   @media (max-width: 400px) {

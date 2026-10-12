@@ -12,6 +12,9 @@ function configurarInstalacionApp() {
     const base = window.APP_BASE_URL || '';
     navigator.serviceWorker.register(`${base}/sw.js`).catch(() => {});
 
+    // No mostrar el botón de instalación en la pantalla de login
+    if (document.querySelector('.pagina-login')) return;
+
     let eventoInstalacion;
     window.addEventListener('beforeinstallprompt', (evento) => {
         evento.preventDefault();

@@ -149,8 +149,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
         $conexion->beginTransaction();
 
-        $q = $conexion->prepare("INSERT INTO metas (anio, tipo, objetivo, sector_id, creado_por) VALUES (?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE objetivo = VALUES(objetivo)");
-        $q->execute([$anioGuardar, $tipo, $objetivo, $sectorId, (int) $_SESSION["usuario_id"]]);
+        $sectorIdUnico = $sectorId ? (int) $sectorId : 0;
+        $q = $conexion->prepare("INSERT INTO metas (anio, tipo, objetivo, sector_id, sector_id_unico, creado_por) VALUES (?, ?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE objetivo = VALUES(objetivo)");
+        $q->execute([$anioGuardar, $tipo, $objetivo, $sectorId, $sectorIdUnico, (int) $_SESSION["usuario_id"]]);
 
         $q = $conexion->prepare("SELECT id FROM metas WHERE anio = ? AND tipo = ? AND sector_id_unico = ?");
         $q->execute([$anioGuardar, $tipo, $sectorId ?? 0]);

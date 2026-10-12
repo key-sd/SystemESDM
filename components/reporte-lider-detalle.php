@@ -19,10 +19,23 @@
         </span>
     </div>
 
-    <div class="grid-3 report-detail-stats">
+    <?php
+    $tipoCel = $reporte["tipo_celula"] ?? "adultos";
+    $totAdultos = (int) $reporte["adultos_amigos"] + (int) $reporte["adultos_hermanos"];
+    $totJovenes = (int) $reporte["jovenes_amigos"] + (int) $reporte["jovenes_hermanos"];
+    $totNinos = (int) $reporte["ninos"];
+    $totGrupo = ($tipoCel === "ninos") ? $totNinos : (($tipoCel === "jovenes") ? $totJovenes : $totAdultos);
+    $etiquetaGrupo = ($tipoCel === "ninos") ? "Solo niños" : (($tipoCel === "jovenes") ? "Solo jóvenes" : "Solo adultos");
+    ?>
+
+    <div class="grid-4 report-detail-stats">
         <div class="stat">
-            <div class="label">Asistencia total</div>
-            <div class="value"><?= $reporte["total_asistencia"] ?></div>
+            <div class="label">Total Célula (<?= $etiquetaGrupo ?>)</div>
+            <div class="value"><?= $totGrupo ?></div>
+        </div>
+        <div class="stat">
+            <div class="label">Total Global (Asistencia)</div>
+            <div class="value" style="color: #2563eb;"><?= $reporte["total_asistencia"] ?></div>
         </div>
         <div class="stat">
             <div class="label">Ofrenda total</div>
@@ -37,13 +50,21 @@
 
 <div class="grid-2">
     <section class="card">
-        <h3>Asistencia</h3>
+        <h3>Asistencia de la reunión</h3>
         <div class="detail-list">
             <div><span>Adultos amigos</span><strong><?= $reporte["adultos_amigos"] ?></strong></div>
             <div><span>Adultos hermanos</span><strong><?= $reporte["adultos_hermanos"] ?></strong></div>
             <div><span>Jóvenes amigos</span><strong><?= $reporte["jovenes_amigos"] ?></strong></div>
             <div><span>Jóvenes hermanos</span><strong><?= $reporte["jovenes_hermanos"] ?></strong></div>
             <div><span>Niños</span><strong><?= $reporte["ninos"] ?></strong></div>
+            <div style="border-top: 1px dashed var(--line); margin-top: 6px; padding-top: 6px;">
+                <span><strong>Total Célula (<?= $etiquetaGrupo ?>)</strong></span>
+                <strong style="color: var(--gold);"><?= $totGrupo ?></strong>
+            </div>
+            <div>
+                <span><strong>Total Global (Todas las personas)</strong></span>
+                <strong style="color: #2563eb;"><?= $reporte["total_asistencia"] ?></strong>
+            </div>
         </div>
     </section>
 

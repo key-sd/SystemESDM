@@ -234,7 +234,9 @@ function iniciarCalculosAsistenciaYOfrenda() {
         const inJovenesH = document.getElementById('jovenes_hermanos');
         const inJovenesA = document.getElementById('jovenes_amigos');
         const inNinos = document.getElementById('ninos');
-        const displayTotal = document.getElementById('totalAsistenciaDisplay');
+        const displayGrupo = document.getElementById('totalGrupoDisplay');
+        const labelGrupo = document.getElementById('labelTotalGrupo');
+        const displayGlobal = document.getElementById('totalGlobalDisplay');
         const captionTotal = document.getElementById('totalAsistenciaCaption');
 
         function recalcularAsistencia() {
@@ -244,26 +246,42 @@ function iniciarCalculosAsistenciaYOfrenda() {
             const jovA = Math.max(0, parseInt(inJovenesA ? inJovenesA.value : 0, 10) || 0);
             const nin = Math.max(0, parseInt(inNinos ? inNinos.value : 0, 10) || 0);
 
-            let total = 0;
-            let explicacion = '';
+            const totAdultos = adH + adA;
+            const totJovenes = jovH + jovA;
+            const totNinos = nin;
+            const totGlobal = totAdultos + totJovenes + totNinos;
+
+            let totGrupo = 0;
+            let nombreGrupo = '';
 
             if (tipoCelula === 'ninos') {
-                total = nin;
-                explicacion = 'Total Célula Infantil (Niños: ' + nin + ')';
+                totGrupo = totNinos;
+                nombreGrupo = 'Solo Niños';
             } else if (tipoCelula === 'jovenes') {
-                total = (jovH + jovA) + (adH + adA);
-                explicacion = 'Total Célula Juvenil (Jóvenes: ' + (jovH + jovA) + ' + Adultos: ' + (adH + adA) + ')';
+                totGrupo = totJovenes;
+                nombreGrupo = 'Solo Jóvenes';
             } else {
                 // adultos
-                total = (adH + adA) + (jovH + jovA);
-                explicacion = 'Total Célula Adultos (Adultos: ' + (adH + adA) + ' + Jóvenes: ' + (jovH + jovA) + ')';
+                totGrupo = totAdultos;
+                nombreGrupo = 'Solo Adultos';
             }
 
-            if (displayTotal) {
-                displayTotal.textContent = total;
+            if (displayGrupo) {
+                displayGrupo.textContent = totGrupo;
+            }
+            if (labelGrupo) {
+                labelGrupo.textContent = nombreGrupo;
+            }
+            if (displayGlobal) {
+                displayGlobal.textContent = totGlobal;
             }
             if (captionTotal) {
-                captionTotal.textContent = explicacion;
+                let desglose = [];
+                if (totAdultos > 0) desglose.push(`${totAdultos} ad.`);
+                if (totJovenes > 0) desglose.push(`${totJovenes} jóv.`);
+                if (totNinos > 0) desglose.push(`${totNinos} niñ.`);
+                const textoDesglose = desglose.length > 0 ? ` (${desglose.join(' + ')})` : '';
+                captionTotal.textContent = `Célula: ${totGrupo} | Global: ${totGlobal} personas${textoDesglose}`;
             }
         }
 

@@ -284,7 +284,8 @@ $consulta = $conexion->prepare(
     'SELECT
         r.*,
         u.nombre_completo,
-        c.nombre AS celula
+        c.nombre AS celula,
+        c.tipo AS tipo_celula
      FROM reportes_lider r
      INNER JOIN celulas c ON c.id = r.celula_id
      INNER JOIN usuarios u ON u.id = r.lider_id
@@ -364,18 +365,29 @@ require __DIR__ . '/../components/top.php';
                         <th>Fecha</th>
                         <th>Célula</th>
                         <th>Líder</th>
-                        <th>Asistencia</th>
+                        <th>Total Célula</th>
+                        <th>Total Global</th>
                         <th>Enviado</th>
                         <th>Estado</th>
+                        <th>Acción</th>
                     </tr>
                 </thead>
                 <tbody>
                     <?php foreach (array_slice($reportes, 0, 10) as $reporte): ?>
+                        <?php
+                        $tipoCel = $reporte['tipo_celula'] ?? 'adultos';
+                        $totAd = (int)$reporte['adultos_amigos'] + (int)$reporte['adultos_hermanos'];
+                        $totJov = (int)$reporte['jovenes_amigos'] + (int)$reporte['jovenes_hermanos'];
+                        $totNin = (int)$reporte['ninos'];
+                        $totGrupo = ($tipoCel === 'ninos') ? $totNin : (($tipoCel === 'jovenes') ? $totJov : $totAd);
+                        $lblGrupo = ($tipoCel === 'ninos') ? 'niños' : (($tipoCel === 'jovenes') ? 'jóvenes' : 'adultos');
+                        ?>
                         <tr>
                             <td><?= date('d/m/Y', strtotime($reporte['fecha_reporte'])) ?></td>
                             <td><strong><?= e($reporte['celula']) ?></strong></td>
                             <td><?= e($reporte['nombre_completo']) ?></td>
-                            <td><?= $reporte['total_asistencia'] ?></td>
+                            <td><strong><?= $totGrupo ?></strong> <small class="muted">(<?= $lblGrupo ?>)</small></td>
+                            <td><strong style="color: #2563eb;"><?= $reporte['total_asistencia'] ?></strong> <small class="muted">(global)</small></td>
                             <td class="receipt"><?= fechaBonita($reporte['enviado_en']) ?></td>
                             <td>
                                 <span class="badge <?= $reporte['visto_supervisor_en'] ? 'ok' : 'wait' ?>">
@@ -514,10 +526,22 @@ require __DIR__ . '/../components/top.php';
                                     <i class="ri-file-list-3-line"></i> Ver reporte completo
                                 </a>
                             </div>
+                            <?php
+                            $tipoC = $celula['tipo'] ?? 'adultos';
+                            $totAdC = (int)($celula['reporte_semana_aa'] ?? 0) + (int)($celula['reporte_semana_ah'] ?? 0);
+                            $totJovC = (int)($celula['reporte_semana_ja'] ?? 0) + (int)($celula['reporte_semana_jh'] ?? 0);
+                            $totNinC = (int)($celula['reporte_semana_ninos'] ?? 0);
+                            $totGrupoC = ($tipoC === 'ninos') ? $totNinC : (($tipoC === 'jovenes') ? $totJovC : $totAdC);
+                            $lblGrupoC = ($tipoC === 'ninos') ? 'Solo Niños' : (($tipoC === 'jovenes') ? 'Solo Jóvenes' : 'Solo Adultos');
+                            ?>
                             <div class="report-box-metrics">
                                 <div class="metric-item">
-                                    <span class="metric-num"><?= $celula['reporte_semana_asistencia'] ?></span>
-                                    <span class="metric-lbl">Asistencia total</span>
+                                    <span class="metric-num"><?= $totGrupoC ?></span>
+                                    <span class="metric-lbl">Total Célula (<?= $lblGrupoC ?>)</span>
+                                </div>
+                                <div class="metric-item">
+                                    <span class="metric-num" style="color: #2563eb;"><?= $celula['reporte_semana_asistencia'] ?></span>
+                                    <span class="metric-lbl">Total Global</span>
                                 </div>
                                 <div class="metric-item">
                                     <span class="metric-num">$<?= number_format($celula['reporte_semana_ofrenda'], 2) ?></span>
@@ -693,7 +717,8 @@ require __DIR__ . '/../components/top.php';
                             <th>Jóvenes amigos</th>
                             <th>Jóvenes hermanos</th>
                             <th>Niños</th>
-                            <th>Total personas</th>
+                            <th>Total Célula</th>
+                            <th>Total Personas</th>
                             <th>Conversiones</th>
                             <th>Visitas</th>
                             <th title="Bautismo en agua">Cand. Bautismo</th>
@@ -748,8 +773,13 @@ require __DIR__ . '/../components/top.php';
                                         >
                                     </td>
                                 <?php endforeach; ?>
-                                <td>
-                                    <strong class="row-total" data-row-total>0</strong>
+                                <td style="background: #f8fafc; text-align: center;">
+                                    <strong class="row-target-total" data-row-target-total>0</strong>
+                                    <small class="muted" style="display: block; font-size: 9.5px;" data-row-target-label>Célula</small>
+                                </td>
+                                <td style="background: #eff6ff; text-align: center;">
+                                    <strong class="row-total" data-row-total style="color: #1d4ed8;">0</strong>
+                                    <small class="muted" style="display: block; font-size: 9.5px;">Global</small>
                                 </td>
                                 <?php foreach (array_keys($camposResultados) as $campo): ?>
                                     <td>
@@ -773,7 +803,8 @@ require __DIR__ . '/../components/top.php';
                             <?php foreach (array_keys($camposAsistencia) as $campo): ?>
                                 <td><strong data-column-total="<?= $campo ?>">0</strong></td>
                             <?php endforeach; ?>
-                            <td><strong data-column-total="personas">0</strong></td>
+                            <td style="text-align: center;"><strong data-column-total="celulas_total">0</strong></td>
+                            <td style="text-align: center;"><strong data-column-total="personas">0</strong></td>
                             <?php foreach (array_keys($camposResultados) as $campo): ?>
                                 <td><strong data-column-total="<?= $campo ?>">0</strong></td>
                             <?php endforeach; ?>
@@ -786,7 +817,7 @@ require __DIR__ . '/../components/top.php';
                 <div><span>Total adultos</span><strong data-sector-total="adultos">0</strong></div>
                 <div><span>Total jóvenes</span><strong data-sector-total="jovenes">0</strong></div>
                 <div><span>Total niños</span><strong data-sector-total="ninos">0</strong></div>
-                <div><span>Total personas</span><strong data-sector-total="personas">0</strong></div>
+                <div><span>Total personas (Global)</span><strong data-sector-total="personas">0</strong></div>
                 <div><span>Ofrenda total</span><strong>$<span data-sector-total="ofrenda">0.00</span></strong></div>
             </div>
 

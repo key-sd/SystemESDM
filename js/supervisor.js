@@ -38,8 +38,12 @@ function configurarTotalesConsolidado() {
             totales[campo] = 0;
         });
 
+        let sumaTotalCelulas = 0;
+
         filas.forEach((fila) => {
             const valoresFila = {};
+            const tipoInput = fila.querySelector('input[name="tipo[]"]');
+            const tipoCelula = (tipoInput?.value || 'adultos').toLowerCase();
 
             campos.forEach((campo) => {
                 const input = fila.querySelector(`[data-consolidated-input="${campo}"]`);
@@ -48,8 +52,31 @@ function configurarTotalesConsolidado() {
                 totales[campo] += valor;
             });
 
-            const personas = valoresFila.aa + valoresFila.ah + valoresFila.ja + valoresFila.jh + valoresFila.ninos;
-            fila.querySelector('[data-row-total]').textContent = formatearNumero(personas);
+            const adTot = valoresFila.aa + valoresFila.ah;
+            const jovTot = valoresFila.ja + valoresFila.jh;
+            const ninTot = valoresFila.ninos;
+            const personas = adTot + jovTot + ninTot;
+
+            let totalCelula = adTot;
+            let labelCelula = 'Adultos';
+            if (tipoCelula === 'ninos') {
+                totalCelula = ninTot;
+                labelCelula = 'Niños';
+            } else if (tipoCelula === 'jovenes') {
+                totalCelula = jovTot;
+                labelCelula = 'Jóvenes';
+            }
+
+            sumaTotalCelulas += totalCelula;
+
+            const targetEl = fila.querySelector('[data-row-target-total]');
+            if (targetEl) targetEl.textContent = formatearNumero(totalCelula);
+
+            const targetLabel = fila.querySelector('[data-row-target-label]');
+            if (targetLabel) targetLabel.textContent = labelCelula;
+
+            const rowTotalEl = fila.querySelector('[data-row-total]');
+            if (rowTotalEl) rowTotalEl.textContent = formatearNumero(personas);
         });
 
         const personas = totales.aa + totales.ah + totales.ja + totales.jh + totales.ninos;
@@ -63,6 +90,11 @@ function configurarTotalesConsolidado() {
                     : formatearNumero(totales[campo]);
             }
         });
+
+        const totalCelulasCol = document.querySelector('[data-column-total="celulas_total"]');
+        if (totalCelulasCol) {
+            totalCelulasCol.textContent = formatearNumero(sumaTotalCelulas);
+        }
 
         const totalPersonas = document.querySelector('[data-column-total="personas"]');
 

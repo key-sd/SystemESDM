@@ -853,7 +853,7 @@ require __DIR__ . '/../components/top.php';
                                         <i class="ri-bear-smile-line"></i> Niños <?= $tipoSlug === 'ninos' ? '<span class="badge-req">* Obligatorio</span>' : '' ?>
                                     </th>
                                     <th class="th-section th-total">
-                                        <i class="ri-calculator-line"></i> Total Célula
+                                        <i class="ri-calculator-line"></i> Totales Asistencia
                                     </th>
                                 </tr>
                                 <tr class="th-sub">
@@ -862,7 +862,7 @@ require __DIR__ . '/../components/top.php';
                                     <th>Hermanos</th>
                                     <th>Amigos</th>
                                     <th>Niños</th>
-                                    <th class="th-total-col">Total Asistencia</th>
+                                    <th class="th-total-col">Célula / Global</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -932,11 +932,25 @@ require __DIR__ . '/../components/top.php';
                                     </td>
                                     <td class="td-total-highlight">
                                         <span class="mobile-td-label">
-                                            <i class="ri-calculator-line"></i> Total Asistencia Célula
+                                            <i class="ri-calculator-line"></i> Resumen de Asistencia
                                         </span>
-                                        <div class="total-big-number" id="totalAsistenciaDisplay">0</div>
+                                        <div class="totals-dual-wrap">
+                                            <div class="total-box total-box-target">
+                                                <span class="total-badge-label" id="labelTotalGrupo">
+                                                    <?= $tipoSlug === 'ninos' ? 'Solo Niños' : ($tipoSlug === 'jovenes' ? 'Solo Jóvenes' : 'Solo Adultos') ?>
+                                                </span>
+                                                <div class="total-big-number" id="totalGrupoDisplay">0</div>
+                                            </div>
+                                            <div class="total-box-divider"></div>
+                                            <div class="total-box total-box-global">
+                                                <span class="total-badge-label total-badge-global">
+                                                    Total Global
+                                                </span>
+                                                <div class="total-big-number total-global-number" id="totalGlobalDisplay">0</div>
+                                            </div>
+                                        </div>
                                         <small class="total-rule-caption" id="totalAsistenciaCaption">
-                                            <?= $tipoSlug === 'ninos' ? 'Total Niños' : 'Total Adultos + Jóvenes' ?>
+                                            Calculando asistencia...
                                         </small>
                                     </td>
                                 </tr>
@@ -1540,6 +1554,7 @@ require __DIR__ . '/../components/top.php';
                         <th>Jóvenes</th>
                         <th>Niños</th>
                         <th style="background: #eef2ff; color: #1e40af;">Total Célula</th>
+                        <th style="background: #eff6ff; color: #1d4ed8;">Total Global</th>
                         <th>Iglesia</th>
                         <th>Misiones</th>
                         <th>Transporte</th>
@@ -1556,7 +1571,8 @@ require __DIR__ . '/../components/top.php';
                         $totAdultos = (int)$reporte['adultos_amigos'] + (int)$reporte['adultos_hermanos'];
                         $totJovenes = (int)$reporte['jovenes_amigos'] + (int)$reporte['jovenes_hermanos'];
                         $totNinos = (int)$reporte['ninos'];
-                        $totalSegunTipo = ($tipoSlug === 'ninos') ? $totNinos : ($totAdultos + $totJovenes);
+                        $totalSegunTipo = ($tipoSlug === 'ninos') ? $totNinos : (($tipoSlug === 'jovenes') ? $totJovenes : $totAdultos);
+                        $totalGlobal = (int)$reporte['total_asistencia'];
                         ?>
                         <tr>
                             <td data-label="Semana">
@@ -1565,12 +1581,20 @@ require __DIR__ . '/../components/top.php';
                             <td data-label="Adultos"><?= $totAdultos ?></td>
                             <td data-label="Jóvenes"><?= $totJovenes ?></td>
                             <td data-label="Niños"><?= $totNinos ?></td>
-                            <td data-label="Total Célula" style="background: #f8fafc;">
+                            <td data-label="Total Célula" style="background: #f8fafc; text-align: center;">
                                 <span class="badge ok" style="font-size: 13px; font-weight: 800;">
                                     <?= $totalSegunTipo ?>
                                 </span>
                                 <small class="muted" style="display: block; font-size: 9.5px;">
-                                    <?= $tipoSlug === 'ninos' ? 'Solo niños' : 'Adul+Jóv' ?>
+                                    <?= $tipoSlug === 'ninos' ? 'Solo niños' : ($tipoSlug === 'jovenes' ? 'Solo jóvenes' : 'Solo adultos') ?>
+                                </small>
+                            </td>
+                            <td data-label="Total Global" style="background: #eff6ff; text-align: center;">
+                                <span class="badge" style="font-size: 13px; font-weight: 800; background: #2563eb; color: #fff;">
+                                    <?= $totalGlobal ?>
+                                </span>
+                                <small class="muted" style="display: block; font-size: 9.5px;">
+                                    Todas personas
                                 </small>
                             </td>
                             <td data-label="Iglesia">$<?= number_format($reporte['ofrenda_iglesia'], 2) ?></td>

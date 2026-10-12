@@ -1,6 +1,7 @@
 <?php
+// Conexión a la base de datos local (MySQL / phpMyAdmin de XAMPP)
 $host = "localhost";
-$db = "db_systemelimsdm";
+$db   = "db_systemelimsdm";
 $user = "root";
 $pass = "";
 
@@ -8,7 +9,7 @@ try {
     $conexion = new PDO(
         "mysql:host=$host;dbname=$db;charset=utf8mb4",
         $user,
-        $pass,
+        $pass
     );
     $conexion->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     $conexion->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
