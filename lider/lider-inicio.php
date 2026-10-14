@@ -462,10 +462,13 @@ require __DIR__ . '/../components/top.php';
             </div>
             <h2><?= e($perfil['celula'] ?? 'Célula sin asignar') ?></h2>
         </div>
-        <div>
+        <div class="d-flex align-items-center gap-2 flex-wrap">
             <span class="badge-celula badge-celula-<?= e($tipoSlug) ?>">
                 <i class="ri-shield-user-line"></i> Célula <?= e($etiquetaTipo) ?>
             </span>
+            <a href="<?= urlApp('exportar-miembros.php') ?>" class="btn btn-gold btn-sm" title="Descargar miembros de mi célula en PDF">
+                <i class="ri-file-pdf-2-line"></i> Miembros en PDF
+            </a>
         </div>
     </div>
     <?php
@@ -710,8 +713,14 @@ require __DIR__ . '/../components/top.php';
         <div class="card-head">
             <div>
                 <p class="eyebrow">Miembros de mi célula</p>
+                <h3>Padrón celular</h3>
             </div>
-            <span class="badge ok"><?= count($miembros) ?> registrados</span>
+            <div class="d-flex align-items-center gap-2">
+                <span class="badge ok"><?= count($miembros) ?> registrados</span>
+                <a href="<?= urlApp('exportar-miembros.php') ?>" class="btn btn-gold btn-sm" title="Descargar padrón de miembros en PDF">
+                    <i class="ri-file-pdf-2-line"></i> Descargar PDF
+                </a>
+            </div>
         </div>
 
         <div class="table-wrap">

@@ -330,6 +330,13 @@ abrirPaginaAdmin(
                             <td class="actions-cell">
                                 <a
                                     class="btn btn-soft btn-sm"
+                                    href="<?= urlApp('exportar-miembros.php?celula_id=' . $celula['id']) ?>"
+                                    title="Descargar miembros en PDF"
+                                >
+                                    <i class="ri-file-pdf-2-line"></i> PDF
+                                </a>
+                                <a
+                                    class="btn btn-soft btn-sm"
                                     href="celulas.php?editar=<?= $celula[
                                         "id"
                                     ] ?>"

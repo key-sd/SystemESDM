@@ -449,9 +449,14 @@ require __DIR__ . '/../components/top.php';
                         <span class="cell-members-count">
                             <i class="ri-team-line"></i> <?= (int) $celula['total_miembros'] ?> miembro<?= (int) $celula['total_miembros'] === 1 ? '' : 's' ?>
                         </span>
-                        <button type="button" class="btn btn-soft btn-sm btn-open-cell-modal" data-open-cell-modal="<?= $celula['id'] ?>">
-                            <i class="ri-eye-line"></i> Ver detalles
-                        </button>
+                        <div class="d-flex align-items-center gap-1">
+                            <a href="<?= urlApp('exportar-miembros.php?celula_id=' . $celula['id']) ?>" class="btn btn-soft btn-sm" title="Descargar miembros en PDF">
+                                <i class="ri-file-pdf-2-line"></i> PDF
+                            </a>
+                            <button type="button" class="btn btn-soft btn-sm btn-open-cell-modal" data-open-cell-modal="<?= $celula['id'] ?>">
+                                <i class="ri-eye-line"></i> Ver detalles
+                            </button>
+                        </div>
                     </div>
                 </article>
             <?php endforeach; ?>
@@ -568,9 +573,14 @@ require __DIR__ . '/../components/top.php';
 
                     <!-- 3. Miembros registrados -->
                     <div class="cell-modal-section">
-                        <div class="section-heading">
-                            <h3>Miembros registrados en la célula</h3>
-                            <span class="badge-count"><?= count($miembros) ?></span>
+                        <div class="section-heading" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <h3>Miembros registrados en la célula</h3>
+                                <span class="badge-count"><?= count($miembros) ?></span>
+                            </div>
+                            <a href="<?= urlApp('exportar-miembros.php?celula_id=' . $celula['id']) ?>" class="btn btn-gold btn-sm" title="Descargar lista de miembros en PDF">
+                                <i class="ri-file-pdf-2-line"></i> Descargar PDF
+                            </a>
                         </div>
                         <?php if (!empty($miembros)): ?>
                             <div class="cell-members-table-wrap">
